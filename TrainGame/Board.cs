@@ -2,7 +2,7 @@
 
 namespace TrainGame
 {
-    public class Class1
+    public class Board
     {
     }
 }
