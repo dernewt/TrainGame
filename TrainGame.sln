@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainGame", "TrainGame\TrainGame.csproj", "{405AB8A4-E28B-46F1-981B-A4311BE20E61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainGameTest", "TrainGameTest\TrainGameTest.csproj", "{12498395-6D26-4A8B-8B29-CF1F23C3D667}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainGameRunner", "TrainGameRunner\TrainGameRunner.csproj", "{0ECAB908-E040-4371-BD34-AE1C69CA13DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{405AB8A4-E28B-46F1-981B-A4311BE20E61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{405AB8A4-E28B-46F1-981B-A4311BE20E61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{405AB8A4-E28B-46F1-981B-A4311BE20E61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12498395-6D26-4A8B-8B29-CF1F23C3D667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12498395-6D26-4A8B-8B29-CF1F23C3D667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12498395-6D26-4A8B-8B29-CF1F23C3D667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12498395-6D26-4A8B-8B29-CF1F23C3D667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ECAB908-E040-4371-BD34-AE1C69CA13DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ECAB908-E040-4371-BD34-AE1C69CA13DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ECAB908-E040-4371-BD34-AE1C69CA13DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ECAB908-E040-4371-BD34-AE1C69CA13DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
