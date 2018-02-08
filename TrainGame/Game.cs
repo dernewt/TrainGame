@@ -7,29 +7,30 @@ namespace TrainGame
     public class Game
     {
         public Player[] Players { get; }
-        public List<TrainCard> TicketDeck { get; }
-        public List<DestinationCard> DestinationDeck { get; }
+        public Deck<TrainCard> TicketDeck { get; }
+        public Deck<DestinationCard> DestinationDeck { get; }
         public RouteMap Board { get; }
-        private Random _luck;
+
+        protected Random Entropy;
 
         public Game(Player[] players, int? seed = null)
         {
-            _luck = new Random(seed ?? Guid.NewGuid().GetHashCode());
+            Entropy = new Random(seed ?? Guid.NewGuid().GetHashCode());
 
             Players = players;
 
-            TicketDeck = new List<TrainCard>(240);
+            TicketDeck = new Deck<TrainCard>(Entropy, 240);
             foreach (Color color in Enum.GetValues(typeof(Color)))
             {
                 TicketDeck.AddRange(Enumerable.Repeat(new TrainCard(color), 45));
             }
-            TicketDeck = TicketDeck.OrderBy(p => _luck.Next()).ToList();
+            TicketDeck = TicketDeck.Shuffle();
 
-            DestinationDeck = new List<DestinationCard>(30)
+            DestinationDeck = new Deck<DestinationCard>(Entropy, 30)
             {
                 new DestinationCard(City.LasVegas, City.Phoenix, 10, 0),
             };
-            DestinationDeck = DestinationDeck.OrderBy(p => _luck.Next()).ToList();
+            DestinationDeck = DestinationDeck.Shuffle();
 
         }
 

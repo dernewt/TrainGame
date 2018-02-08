@@ -8,19 +8,19 @@ namespace TrainGameRunner
     {
         static void Main(string[] args)
         {
-            var g = new Game(new[] { new Player("rando"), new Player("rando2") });
+            var g = new Game(new[] { new Player(new RandomAgent()), new Player(new RandomAgent()) });
 
             foreach (var player in g.Players)
             {
                 
-                switch(player.DecideAction(g))
+                switch(player.Brain.DecideAction(g))
                 {
                     case PlayerAction.ClaimRoute:
                         break;
 
                     case PlayerAction.DrawDestination:
                         var choices = g.DestinationDeck.Draw();
-                        var picks = player.DecideDestinations(g, choices);
+                        var picks = player.Brain.DecideDestinations(choices, g);
                         player.TakeDestinations(picks);
                         g.DestinationDeck.ReturnDraw(choices.Except(picks));
                         break;

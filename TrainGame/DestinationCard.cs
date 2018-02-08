@@ -20,7 +20,7 @@ namespace TrainGame
         }
     }
 
-    public static class DeckExtentions
+    public static class DestinationDeckExtentions
     {
         public static IEnumerable<DestinationCard> Draw(this List<DestinationCard> deck)
         {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace TrainGame
 {
@@ -8,20 +7,12 @@ namespace TrainGame
         public List<DestinationCard> Destinations { get; }
         public int Score { get; set; }
         public string Name { get; }
+        public IAgency Brain { get; }
 
-        public Player(string name)
+        public Player(IAgency brain)
         {
-            Name = string.IsNullOrWhiteSpace(name) ? GetHashCode().ToString() : name;
-        }
-
-        public PlayerAction DecideAction(Game state)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<DestinationCard> DecideDestinations(Game g, IEnumerable<DestinationCard> choices)
-        {
-            throw new NotImplementedException();
+            Brain = brain;
+            Name = Brain.DecideName();
         }
 
         public void TakeDestinations(IEnumerable<DestinationCard> picks)
