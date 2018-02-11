@@ -4,26 +4,23 @@ using System.Linq;
 
 namespace TrainGame
 {
-    /// <summary>
-    /// Really dumb, only makes an attempt to pick evenly among choices (without bias or weight)
-    /// </summary>
-    public class RandomAgent : IAgency
+    public class RandomPlayer : Player
     {
         protected Random Entropy;
         protected int Seed { get; }
 
-        public RandomAgent()
+        public RandomPlayer()
             : this(Guid.NewGuid().GetHashCode())
         {
         }
 
-        public RandomAgent(int seed)
+        public RandomPlayer(int seed)
         {
             Seed = seed;
             Entropy = new Random(Seed);
         }
 
-        public string DecideName()
+        public override string DecideName()
         {
             return GetType().Name + "_" + Seed;
         }
@@ -33,11 +30,11 @@ namespace TrainGame
         /// </remarks>
         /// <param name="state">Not even used</param>
         /// <returns>Any action (may not even be valid)</returns>
-        public PlayerAction DecideAction(Game state = null)
+        public override PlayerAction DecideAction(Game state = null)
         {
             var allActions = Enum.GetValues(typeof(PlayerAction));
 
-            return (PlayerAction) allActions.GetValue(
+            return (PlayerAction)allActions.GetValue(
                 Entropy.Next(allActions.Length));
         }
 
@@ -47,9 +44,14 @@ namespace TrainGame
         /// <param name="choices">cards to pick from</param>
         /// <param name="g">Not even used</param>
         /// <returns>Any number of cards (may not even be valid)</returns>
-        public IEnumerable<DestinationCard> DecideDestinations(IEnumerable<DestinationCard> choices, Game g = null)
+        public override IEnumerable<DestinationCard> DecideDestinations(IEnumerable<DestinationCard> choices, Game g = null)
         {
             return new Deck<DestinationCard>(Entropy, choices).Shuffle().Take(Entropy.Next(1, choices.Count()));
+        }
+        
+        public override Route NextClaim(Game current)
+        {
+            throw new NotImplementedException();
         }
     }
 }

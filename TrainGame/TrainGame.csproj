@@ -4,4 +4,9 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Polly" Version="5.8.0" />
+    <PackageReference Include="QuickGraphCore" Version="1.0.0" />
+  </ItemGroup>
+
 </Project>

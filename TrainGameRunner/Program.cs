@@ -1,4 +1,5 @@
 ﻿using System;
+using Polly;
 using System.Linq;
 using TrainGame;
 
@@ -8,29 +9,36 @@ namespace TrainGameRunner
     {
         static void Main(string[] args)
         {
-            var g = new Game(new[] { new Player(new RandomAgent()), new Player(new RandomAgent()) });
+            var current = new Game(new[] { new RandomPlayer(), new RandomPlayer() });
 
-            foreach (var player in g.Players)
+            foreach (var player in current.Players)
             {
-                
-                switch(player.Brain.DecideAction(g))
-                {
-                    case PlayerAction.ClaimRoute:
-                        break;
 
-                    case PlayerAction.DrawDestination:
-                        var choices = g.DestinationDeck.Draw();
-                        var picks = player.Brain.DecideDestinations(choices, g);
-                        player.TakeDestinations(picks);
-                        g.DestinationDeck.ReturnDraw(choices.Except(picks));
-                        break;
+                Policy.Handle<ArgumentException>()
+                    .RetryForever()
+                    .Execute(() =>
+                    {
+                        switch (player.DecideAction(current))
+                        {
+                            case PlayerAction.ClaimRoute:
+                                var route = player.NextClaim(current);
+                                current.Board.Claim(route, player);
+                                break;
 
-                    case PlayerAction.DrawTicket:
-                        break;
-                }
+                            case PlayerAction.DrawDestination:
+                                var choices = current.DestinationDeck.Draw();
+                                var picks = player.DecideDestinations(choices, current);
+                                player.TakeDestinations(picks);
+                                current.DestinationDeck.ReturnDraw(choices.Except(picks));
+                                break;
+
+                            case PlayerAction.DrawTicket:
+                                break;
+                        };
+                    });
             }
 
-            var leaderboard = g.End();
+            var leaderboard = current.End();
 
             foreach (var player in leaderboard)
             {
