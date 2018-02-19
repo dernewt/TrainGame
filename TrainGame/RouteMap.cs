@@ -43,6 +43,9 @@ namespace TrainGame
             public override string DecideName()
                 => throw new ApplicationException();
 
+            public override TrainCard DecideTicket(TrainCard[] from, Game current)
+                => throw new ApplicationException();
+
             public override Route NextClaim(Game current) 
                 => throw new ApplicationException();
         }

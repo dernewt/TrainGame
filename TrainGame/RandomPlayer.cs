@@ -53,5 +53,10 @@ namespace TrainGame
         {
             throw new NotImplementedException();
         }
+
+        public override TrainCard DecideTicket(TrainCard[] from, Game current)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

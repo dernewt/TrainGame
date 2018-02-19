@@ -6,8 +6,10 @@ namespace TrainGame
 {
     public class Game
     {
+        public const int MaxTicketDraw = 2;
         public Player[] Players { get; }
         public Deck<TrainCard> TicketDeck { get; }
+        public TrainCard[] TicketDisplay { get; }
         public Deck<DestinationCard> DestinationDeck { get; }
         public RouteMap Board { get; }
 
@@ -32,6 +34,8 @@ namespace TrainGame
             };
             DestinationDeck = DestinationDeck.Shuffle();
 
+            TicketDisplay = TicketDeck.Take(5).ToArray();
+
         }
 
         public IOrderedEnumerable<Player> End()
@@ -54,6 +58,22 @@ namespace TrainGame
                 .ThenByDescending(p=> Board.LongestDestination(p).Length);
         }
 
+        public void Claim(IEnumerable<DestinationCard> picks, Player player)
+        {
+            player.Destinations.AddRange(picks);
+        }
+
+        public bool Claim(TrainCard pick, Player player, int left)
+        {
+            var resolvedPick = pick ?? TicketDeck.Take(1).Single();
+            player.Tickets.Add(resolvedPick);
+
+            if ((pick == null || pick.Type != Color.Any) && left > 0)
+                return true;
+            else
+                return false;
+
+        }
     }
 
     public enum PlayerAction

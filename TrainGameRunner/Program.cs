@@ -11,12 +11,13 @@ namespace TrainGameRunner
         {
             var current = new Game(new[] { new RandomPlayer(), new RandomPlayer() });
 
+            //Scope can narrow if they make moves that leak game secrets
+            var choiceScope = new Action<Action>((a) => Policy.Handle<ArgumentException>().RetryForever().Execute(a));
+
             foreach (var player in current.Players)
             {
 
-                Policy.Handle<ArgumentException>()
-                    .RetryForever()
-                    .Execute(() =>
+                choiceScope(() =>
                     {
                         switch (player.DecideAction(current))
                         {
@@ -27,12 +28,24 @@ namespace TrainGameRunner
 
                             case PlayerAction.DrawDestination:
                                 var choices = current.DestinationDeck.Draw();
-                                var picks = player.DecideDestinations(choices, current);
-                                player.TakeDestinations(picks);
-                                current.DestinationDeck.ReturnDraw(choices.Except(picks));
+                                choiceScope(()=>{
+                                    var picks = player.DecideDestinations(choices, current);
+                                    current.Claim(picks, player);
+                                    current.DestinationDeck.ReturnDraw(choices.Except(picks));
+                                });
+                                
                                 break;
 
                             case PlayerAction.DrawTicket:
+                                TrainCard pick;
+                                choiceScope(() =>
+                                {
+                                    var left = Game.MaxTicketDraw;
+                                    do
+                                    {
+                                        pick = player.DecideTicket(current.TicketDisplay, current);
+                                    } while (current.Claim(pick, player, --left));
+                                });
                                 break;
                         };
                     });
