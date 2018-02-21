@@ -25,18 +25,18 @@ namespace TrainGameRunner
                         {
                             case PlayerAction.ClaimRoute:
                                 var route = player.NextClaim(game);
-                                game.Board.Claim(route, player);
-                                if (player.Trains <= 2)
+                                game.Claim(route, player);
+                                if (player.Trains < Game.MinTrains)
                                     gameActive = false;
                                 break;
 
                             case PlayerAction.DrawDestination:
-                                var choices = game.DestinationDeck.Draw();
+                                var choices = game.DestinationDeck.DrawOptions();
                                 choiceScope(() =>
                                 {
                                     var picks = player.DecideDestinations(choices, game);
                                     game.Claim(picks, player);
-                                    game.DestinationDeck.ReturnDraw(choices.Except(picks));
+                                    game.DestinationDeck.ReturnOptions(choices.Except(picks));
                                 });
 
                                 break;

@@ -24,17 +24,6 @@ namespace TrainGame
             throw new NotImplementedException();
         }
 
-        public void Claim(Route route, Player player)
-        {
-            throw new NotImplementedException();
-
-            //player.Trains -= 
-            //player.Score += route.length
-
-            //if (!AllowMultipleRoutes)
-            //    Claim(otherRoute, new DisabledPlayer());
-        }
-
         protected class DisabledPlayer : Player
         {
             public override PlayerAction DecideAction(Game state)

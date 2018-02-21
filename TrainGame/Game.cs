@@ -7,9 +7,12 @@ namespace TrainGame
     public class Game
     {
         public const int MaxTicketDraw = 2;
+        public const int MinTrains = 3;
+
         public Player[] Players { get; }
-        public Deck<TrainCard> TicketDeck { get; }
+        public Deck<TrainCard> TicketDeck { get;}
         public TrainCard[] TicketDisplay { get; }
+        public Deck<TrainCard> TicketDiscard { get; }
         public Deck<DestinationCard> DestinationDeck { get; }
         public RouteMap Board { get; }
 
@@ -34,7 +37,7 @@ namespace TrainGame
             };
             DestinationDeck = DestinationDeck.Shuffle();
 
-            TicketDisplay = TicketDeck.Take(5).ToArray();
+            TicketDisplay = TicketDeck.Draw(5).ToArray();
 
         }
 
@@ -58,6 +61,18 @@ namespace TrainGame
                 .ThenByDescending(p=> Board.LongestDestination(p).Length);
         }
 
+
+        public void Claim(Route route, Player player)
+        {
+            throw new NotImplementedException();
+
+            //player.Trains -= 
+            //player.Score += route.length
+
+            //if (!AllowMultipleRoutes)
+            //    Claim(otherRoute, new DisabledPlayer());
+        }
+
         public void Claim(IEnumerable<DestinationCard> picks, Player player)
         {
             player.Destinations.AddRange(picks);
@@ -65,7 +80,7 @@ namespace TrainGame
 
         public bool Claim(TrainCard pick, Player player, int left)
         {
-            var resolvedPick = pick ?? TicketDeck.Take(1).Single();
+            var resolvedPick = pick ?? TicketDeck.Draw();
             player.Tickets.Add(resolvedPick);
 
             if ((pick == null || pick.Type != Color.Any) && left > 0)
