@@ -6,6 +6,7 @@ namespace TrainGame
     {
         public List<DestinationCard> Destinations { get; }
         public List<TrainCard> Tickets { get; }
+        public int Trains { get; set; }
         public int Score { get; set; }
         public string Name { get; }
 

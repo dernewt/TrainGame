@@ -103,4 +103,19 @@ namespace TrainGame
         Red,
         Green
     }
+
+    public static class Extensions
+    {
+        public static IEnumerable<Player> Cycle(this Player[] list)
+        {
+            var count = list.Count();
+            var index = 0;
+
+            while (true)
+            {
+                yield return list.ElementAt(index);
+                index = (index + 1) % count;
+            }
+        }
+    }
 }

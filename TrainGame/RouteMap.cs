@@ -28,6 +28,9 @@ namespace TrainGame
         {
             throw new NotImplementedException();
 
+            //player.Trains -= 
+            //player.Score += route.length
+
             //if (!AllowMultipleRoutes)
             //    Claim(otherRoute, new DisabledPlayer());
         }
