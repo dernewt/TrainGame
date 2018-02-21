@@ -15,14 +15,13 @@ namespace TrainGameRunner
             var choiceScope = new Action<Action>((a) => Policy.Handle<ArgumentException>().RetryForever().Execute(a));
 
             var gameActive = true;
-
             while (gameActive)
             {
                 var player = game.Players.Cycle().First();
 
                 choiceScope(() =>
                     {
-                        switch (player.DecideAction(game))
+                        switch (player.Destinations.Any() ? player.DecideAction(game) : PlayerAction.DrawDestination)
                         {
                             case PlayerAction.ClaimRoute:
                                 var route = player.NextClaim(game);
