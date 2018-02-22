@@ -26,7 +26,7 @@ namespace TrainGameRunner
                             case PlayerAction.ClaimRoute:
                                 var route = player.NextClaim(game);
                                 game.Claim(route, player);
-                                if (player.Trains < Game.MinTrains)
+                                if (player.Trains < Game.PlayerTrainMinimum)
                                     gameActive = false;
                                 break;
 
@@ -45,7 +45,7 @@ namespace TrainGameRunner
                                 TrainCard pick;
                                 choiceScope(() =>
                                 {
-                                    var left = Game.MaxTicketDraw;
+                                    var left = Game.TicketDrawMaximum;
                                     do
                                     {
                                         pick = player.DecideTicket(game.TicketDisplay, game);

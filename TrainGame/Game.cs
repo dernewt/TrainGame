@@ -6,13 +6,16 @@ namespace TrainGame
 {
     public class Game
     {
-        public const int MaxTicketDraw = 2;
-        public const int MinTrains = 3;
+        public static int PlayerTrainMinimum { get; } = 3;
+        public static int TicketDrawMaximum { get; } = 2;
+        public static int TicketShownMaximum { get; } = 5;
+        public static int TicketAnyShownMaximum { get; } = 3;
+        public static int DestinationDrawMaximum { get; } = 3;
+        public static int DestinationDrawMinimum { get; } = 2;
 
         public Player[] Players { get; }
-        public Deck<TrainCard> TicketDeck { get;}
+        public DiscardableDeck<TrainCard> TicketDeck { get;}
         public TrainCard[] TicketDisplay { get; }
-        public Deck<TrainCard> TicketDiscard { get; }
         public Deck<DestinationCard> DestinationDeck { get; }
         public RouteMap Board { get; }
 
@@ -24,20 +27,21 @@ namespace TrainGame
 
             Players = players;
 
-            TicketDeck = new Deck<TrainCard>(Entropy, 240);
+            TicketDeck = new DiscardableDeck<TrainCard>(Entropy, 240);
             foreach (Color color in Enum.GetValues(typeof(Color)))
             {
                 TicketDeck.AddRange(Enumerable.Repeat(new TrainCard(color), 45));
             }
-            TicketDeck = TicketDeck.Shuffle();
+            TicketDeck.Shuffle();
 
             DestinationDeck = new Deck<DestinationCard>(Entropy, 30)
             {
                 new DestinationCard(City.LasVegas, City.Phoenix, 10, 0),
             };
-            DestinationDeck = DestinationDeck.Shuffle();
+            DestinationDeck.Shuffle();
 
-            TicketDisplay = TicketDeck.Draw(5).ToArray();
+            TicketDisplay = TicketDeck.Draw(TicketShownMaximum).ToArray();
+            EnsureTicketDisplayValid();
 
         }
 
@@ -80,14 +84,33 @@ namespace TrainGame
 
         public bool Claim(TrainCard pick, Player player, int left)
         {
-            var resolvedPick = pick ?? TicketDeck.Draw();
-            player.Tickets.Add(resolvedPick);
+            if (pick == null)
+            {
+                player.Tickets.Add(TicketDeck.Draw());
+                return left > 0;
+            }
 
-            if ((pick == null || pick.Type != Color.Any) && left > 0)
-                return true;
-            else
-                return false;
+            player.Tickets.Add(pick);
 
+            TicketDisplay[TicketDisplay.FindIndex(pick)] = TicketDeck.Draw();
+            EnsureTicketDisplayValid();
+
+
+
+            return pick.Type != Color.Any && left > 0;
+        }
+
+        protected void EnsureTicketDisplayValid()
+        {
+            var isDeckBigEnough = TicketDeck.Concat(TicketDeck.Discard).Count(c => c.Type != Color.Any) >= TicketDisplay.Length - TicketAnyShownMaximum;
+
+            while (TicketDisplay.Count(c => c.Type == Color.Any) < TicketAnyShownMaximum && isDeckBigEnough)
+            {
+                TicketDeck.Discard.AddRange(TicketDisplay);
+                var index = 0;
+                foreach (var item in TicketDeck.Draw(TicketDisplay.Length))
+                    TicketDisplay[index++] = item;
+            }
         }
     }
 
