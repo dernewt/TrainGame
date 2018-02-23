@@ -8,7 +8,7 @@ namespace TrainGame
         public int Points { get; }
         public int Length { get; }
 
-        public DestinationCard(City start, City end, int points, int length)
+        public DestinationCard(City start, City end, int points, int length = 0)
         {
             Start = start;
             End = end;

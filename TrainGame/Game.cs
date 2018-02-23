@@ -7,9 +7,11 @@ namespace TrainGame
     public class Game
     {
         public static int PlayerTrainMinimum { get; } = 3;
+        public static int PlayerAlternateRouteMinimum { get; } = 3;
         public static int TicketDrawMaximum { get; } = 2;
         public static int TicketShownMaximum { get; } = 5;
         public static int TicketAnyShownMaximum { get; } = 3;
+        public static int TicketsPerColor { get; } = 45;
         public static int DestinationDrawMaximum { get; } = 3;
         public static int DestinationDrawMinimum { get; } = 2;
 
@@ -27,17 +29,13 @@ namespace TrainGame
 
             Players = players;
 
-            TicketDeck = new DiscardableDeck<TrainCard>(Entropy, 240);
-            foreach (Color color in Enum.GetValues(typeof(Color)))
-            {
-                TicketDeck.AddRange(Enumerable.Repeat(new TrainCard(color), 45));
-            }
+            Board = new RouteMap(GenerateRoutes(),
+                Players.Length > PlayerAlternateRouteMinimum);
+
+            TicketDeck = new DiscardableDeck<TrainCard>(Entropy, GenerateTickets());
             TicketDeck.Shuffle();
 
-            DestinationDeck = new Deck<DestinationCard>(Entropy, 30)
-            {
-                new DestinationCard(City.LasVegas, City.Phoenix, 10, 0),
-            };
+            DestinationDeck = new Deck<DestinationCard>(Entropy, GenerateDestinations());
             DestinationDeck.Shuffle();
 
             TicketDisplay = TicketDeck.Draw(TicketShownMaximum).ToArray();
@@ -111,6 +109,36 @@ namespace TrainGame
                 foreach (var item in TicketDeck.Draw(TicketDisplay.Length))
                     TicketDisplay[index++] = item;
             }
+        }
+
+        protected Route[] GenerateRoutes()
+        {
+            var routes = new [] {
+                new Route(City.LasVegas, City.SanFranscisco, Color.Any, 10)
+                //TODO flesh out
+            };
+            return routes;
+        }
+
+        protected DestinationCard[] GenerateDestinations()
+        {
+            var cards = new[]
+            {
+                new DestinationCard(City.LasVegas, City.Phoenix, 10)
+                //TODO flesh out
+            };
+            return cards;
+        }
+
+        protected List<TrainCard> GenerateTickets()
+        {
+            var cardTypes = (Color[]) Enum.GetValues(typeof(Color));
+            var cards = new List<TrainCard>(cardTypes.Length * TicketsPerColor);
+
+            foreach (var cardType in cardTypes)
+                cards.AddRange(Enumerable.Repeat(new TrainCard(cardType), TicketsPerColor));
+
+            return cards;
         }
     }
 

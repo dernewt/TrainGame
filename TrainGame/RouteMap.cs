@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using QuickGraph;
 using QuickGraph.Algorithms;
@@ -10,9 +11,11 @@ namespace TrainGame
         protected UndirectedGraph<City, Route> Map;
         protected readonly bool AllowMultipleRoutes;
 
-        public RouteMap(bool allowMultipleRoutes)
+        public RouteMap(IEnumerable<Route> connections, bool allowMultipleRoutes = false)
         {
             AllowMultipleRoutes = allowMultipleRoutes;
+
+            Map.AddVerticesAndEdgeRange(connections);
         }
         public bool IsMet(DestinationCard destination, Player player)
         {
@@ -45,7 +48,13 @@ namespace TrainGame
 
     public class Route : TaggedUndirectedEdge<City, EdgeProperties>
     {
-        public Route(City source, City target, EdgeProperties tag) : base(source, target, tag)
+        public Route(City source, City target, EdgeProperties tag)
+            : base(source, target, tag)
+        {
+        }
+
+        public Route(City source, City target, Color color, int length)
+            : this(source, target, new EdgeProperties(color, length))
         {
         }
     }
@@ -55,5 +64,11 @@ namespace TrainGame
         Color Color { get; }
         int Length { get; }
         Player Owner { get; set; }
+
+        public EdgeProperties(Color color, int length)
+        {
+            Color = color;
+            Length = length;
+        }
     }
 }
