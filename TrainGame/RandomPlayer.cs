@@ -58,7 +58,9 @@ namespace TrainGame
 
         public override TrainCard DecideTicket(TrainCard[] from, Game current)
         {
-            throw new NotImplementedException();
+            var pick = Entropy.Next(0, from.Length); //GOTCHA ArgumentRangeException translates to "draw" choice
+            
+            return pick >= from.Length ? null : from[pick];
         }
     }
 }
