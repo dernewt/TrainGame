@@ -13,13 +13,21 @@ namespace TrainGame
 
         public RouteMap(IEnumerable<Route> connections, bool allowMultipleRoutes = false)
         {
-            AllowMultipleRoutes = allowMultipleRoutes;
-
+            Map = new UndirectedGraph<City, Route>(true);
             Map.AddVerticesAndEdgeRange(connections);
+            AllowMultipleRoutes = allowMultipleRoutes;
         }
         public bool IsMet(DestinationCard destination, Player player)
         {
+            var start = Map.Vertices.Single(v => v == destination.Start);
+            //Map.
             throw new NotImplementedException();
+        }
+
+        public IEnumerable<Route> AvailableRoutes(City start, City end, Player player)
+        {
+            var openRoutes = new List<Route>();
+            return openRoutes;
         }
 
         public DestinationCard LongestDestination(Player target)
