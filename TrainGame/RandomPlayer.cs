@@ -53,7 +53,19 @@ namespace TrainGame
         
         public override Route NextClaim(Game current)
         {
-            throw new NotImplementedException();
+            var mostToLeast = Tickets.GroupBy(t => t.Color)
+                .Select(t => new { Count=t.Count(), Color=t.Key})
+                .OrderBy(t=>t.Count);
+
+            foreach (var ticket in mostToLeast)
+            {
+                var routes = current.Board.AvailableRoutes(ticket.Color, ticket.Count);
+                if (routes.Any())
+                    return routes.First();
+            }
+
+            //there are no available claims
+            throw new ArgumentException("Stupid me, there was nothing I could claim!");
         }
 
         public override TrainCard DecideTicket(TrainCard[] from, Game current)

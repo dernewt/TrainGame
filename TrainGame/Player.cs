@@ -6,7 +6,7 @@ namespace TrainGame
     {
         public List<DestinationCard> Destinations { get; } = new List<DestinationCard>(10);
         public List<TrainCard> Tickets { get; } = new List<TrainCard>(30);
-        public int Trains { get; set; } = 45;
+        public int Trains { get; set; } = Game.PlayerTrainStart;
         public int Score { get; set; } = 0;
         public string Name { get; }
 

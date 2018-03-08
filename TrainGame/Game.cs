@@ -7,6 +7,7 @@ namespace TrainGame
     public class Game
     {
         public static int PlayerTrainMinimum { get; } = 3;
+        public static int PlayerTrainStart { get; } = 45;
         public static int PlayerAlternateRouteMinimum { get; } = 3;
         public static int TicketDrawMaximum { get; } = 2;
         public static int TicketShownMaximum { get; } = 5;
@@ -95,14 +96,14 @@ namespace TrainGame
 
 
 
-            return pick.Type != Color.Any && left > 0;
+            return pick.Color != Color.Any && left > 0;
         }
 
         protected void EnsureTicketDisplayValid()
         {
-            var isDeckBigEnough = TicketDeck.Concat(TicketDeck.Discard).Count(c => c.Type != Color.Any) >= TicketDisplay.Length - TicketAnyShownMaximum;
+            var isDeckBigEnough = TicketDeck.Concat(TicketDeck.Discard).Count(c => c.Color != Color.Any) >= TicketDisplay.Length - TicketAnyShownMaximum;
 
-            while (TicketDisplay.Count(c => c.Type == Color.Any) < TicketAnyShownMaximum && isDeckBigEnough)
+            while (TicketDisplay.Count(c => c.Color == Color.Any) < TicketAnyShownMaximum && isDeckBigEnough)
             {
                 TicketDeck.Discard.AddRange(TicketDisplay);
                 var index = 0;

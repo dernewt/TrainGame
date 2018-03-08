@@ -52,6 +52,11 @@ namespace TrainGame
             public override Route NextClaim(Game current) 
                 => throw new ApplicationException();
         }
+
+        public IEnumerable<Route> AvailableRoutes(Color key, int ticketCount = int.MaxValue)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Route : TaggedUndirectedEdge<City, EdgeProperties>

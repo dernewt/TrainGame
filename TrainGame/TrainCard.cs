@@ -2,11 +2,11 @@
 {
     public class TrainCard
     {
-        public Color Type { get; }
+        public Color Color { get; }
 
-        public TrainCard(Color type)
+        public TrainCard(Color color)
         {
-            Type = type;
+            Color = color;
         }
     }
 }
