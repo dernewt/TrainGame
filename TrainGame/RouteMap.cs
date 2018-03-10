@@ -57,6 +57,11 @@ namespace TrainGame
         {
             throw new NotImplementedException();
         }
+
+        public void Claim(Route route, Player player)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Route : TaggedUndirectedEdge<City, EdgeProperties>
@@ -74,9 +79,9 @@ namespace TrainGame
 
     public class EdgeProperties
     {
-        Color Color { get; }
-        int Length { get; }
-        Player Owner { get; set; }
+        public Color Color { get; }
+        public int Length { get; }
+        public Player Owner { get; set; }
 
         public EdgeProperties(Color color, int length)
         {

@@ -16,6 +16,15 @@ namespace TrainGame
         public static int TicketsPerColor { get; } = 45;
         public static int DestinationDrawMaximum { get; } = 3;
         public static int DestinationDrawMinimum { get; } = 2;
+        public static Dictionary<int,int> RouteLengthScore { get; } = new Dictionary<int, int>
+        {
+            { 1, 1 },
+            { 2, 2 },
+            { 3, 4 },
+            { 4, 7 },
+            { 5, 10 },
+            { 6, 15 },
+        };
 
         public Player[] Players { get; }
         public DiscardableDeck<TrainCard> TicketDeck { get;}
@@ -106,10 +115,10 @@ namespace TrainGame
                 });
             }
 
-            return FinalScore();
+            return ScoreDestinations();
         }
 
-        public IOrderedEnumerable<Player> FinalScore()
+        public IOrderedEnumerable<Player> ScoreDestinations()
         {
             var routeWinner = Players.OrderBy(p => Board.LongestDestination(p).Length).First();
             routeWinner.Destinations.Add(Board.LongestDestination(routeWinner));
@@ -129,16 +138,23 @@ namespace TrainGame
                 .ThenByDescending(p=> Board.LongestDestination(p).Length);
         }
 
-
         public void Claim(Route route, Player player)
         {
-            throw new NotImplementedException();
+            if (player.Trains < route.Tag.Length)
+                throw new ArgumentException("you don't have enough trains");
 
-            //player.Trains -= 
-            //player.Score += route.length
+            var spent = player.Tickets
+                .Where(t => t.Color == route.Tag.Color || t.Color == Color.Any)
+                .OrderByDescending(t=>t.Color) //GOTCHA  Color.Any == 0 which is always last
+                .Take(route.Tag.Length);
 
-            //if (!AllowMultipleRoutes)
-            //    Claim(otherRoute, new DisabledPlayer());
+            if (spent.Count() < route.Tag.Length)
+                throw new ArgumentException("you don't have enough tickets");
+
+            Board.Claim(route, player); //GOTCHA can throw ArgumentException, do this first before changing things
+            player.Tickets.RemoveAll(t => spent.Contains(t));
+            player.Trains -= route.Tag.Length;
+            player.Score += RouteLengthScore[route.Tag.Length];
         }
 
         public void Claim(IEnumerable<DestinationCard> picks, Player player)
