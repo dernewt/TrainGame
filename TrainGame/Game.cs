@@ -46,20 +46,30 @@ namespace TrainGame
         }
 
         /// <summary>
+        /// Game actions can throw if they are not legal, catch these and rety.
+        /// Nest to prevent leaking of game secrets
+        /// </summary>
+        /// <param name="block"></param>
+        protected void ScopeChoices(Action block)
+        {
+            Policy.Handle<ArgumentException>()
+                .RetryForever()
+                .Execute(block);
+        }
+
+        /// <summary>
         /// Really feel weird about this
         /// </summary>
         /// <returns></returns>
         public IOrderedEnumerable<Player> Play()
         {
-            //Scope can narrow if they make moves that leak game secrets
-            var choiceScope = new Action<Action>((a) => Policy.Handle<ArgumentException>().RetryForever().Execute(a));
 
             var gameActive = true;
             while (gameActive)
             {
                 var player = Players.Cycle().First();
 
-                choiceScope(() =>
+                ScopeChoices(() =>
                 {
                     switch (player.Destinations.Any() ? player.DecideAction(this) : PlayerAction.DrawDestination)
                     {
@@ -72,7 +82,7 @@ namespace TrainGame
 
                         case PlayerAction.DrawDestination:
                             var choices = DestinationDeck.DrawOptions();
-                            choiceScope(() =>
+                            ScopeChoices(() =>
                             {
                                 var picks = player.DecideDestinations(choices, this);
                                 Claim(picks, player);
@@ -83,7 +93,7 @@ namespace TrainGame
 
                         case PlayerAction.DrawTicket:
                             TrainCard pick;
-                            choiceScope(() =>
+                            ScopeChoices(() =>
                             {
                                 var left = TicketDrawMaximum;
                                 do
