@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Polly;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -44,7 +45,61 @@ namespace TrainGame
 
         }
 
-        public IOrderedEnumerable<Player> End()
+        /// <summary>
+        /// Really feel weird about this
+        /// </summary>
+        /// <returns></returns>
+        public IOrderedEnumerable<Player> Play()
+        {
+            //Scope can narrow if they make moves that leak game secrets
+            var choiceScope = new Action<Action>((a) => Policy.Handle<ArgumentException>().RetryForever().Execute(a));
+
+            var gameActive = true;
+            while (gameActive)
+            {
+                var player = Players.Cycle().First();
+
+                choiceScope(() =>
+                {
+                    switch (player.Destinations.Any() ? player.DecideAction(this) : PlayerAction.DrawDestination)
+                    {
+                        case PlayerAction.ClaimRoute:
+                            var route = player.NextClaim(this);
+                            Claim(route, player);
+                            if (player.Trains < PlayerTrainMinimum)
+                                gameActive = false;
+                            break;
+
+                        case PlayerAction.DrawDestination:
+                            var choices = DestinationDeck.DrawOptions();
+                            choiceScope(() =>
+                            {
+                                var picks = player.DecideDestinations(choices, this);
+                                Claim(picks, player);
+                                DestinationDeck.ReturnOptions(choices.Except(picks));
+                            });
+
+                            break;
+
+                        case PlayerAction.DrawTicket:
+                            TrainCard pick;
+                            choiceScope(() =>
+                            {
+                                var left = TicketDrawMaximum;
+                                do
+                                {
+                                    pick = player.DecideTicket(TicketDisplay, this);
+                                } while (Claim(pick, player, --left));
+                            });
+                            break;
+                    };
+                });
+            }
+
+            return FinalScore();
+        }
+
+        public IOrderedEnumerable<Player> FinalScore()
         {
             var routeWinner = Players.OrderBy(p => Board.LongestDestination(p).Length).First();
             routeWinner.Destinations.Add(Board.LongestDestination(routeWinner));
