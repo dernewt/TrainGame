@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using QuickGraph;
 using QuickGraph.Algorithms;
+using TrainGame.Players;
 
 namespace TrainGame
 {
@@ -33,24 +34,6 @@ namespace TrainGame
         public DestinationCard LongestDestination(Player target)
         {
             throw new NotImplementedException();
-        }
-
-        protected class DisabledPlayer : Player
-        {
-            public override PlayerAction DecideAction(Game state)
-                => throw new ApplicationException();
-
-            public override IEnumerable<DestinationCard> DecideDestinations(IEnumerable<DestinationCard> choices, Game g)
-                => throw new ApplicationException();
-
-            public override string DecideName()
-                => throw new ApplicationException();
-
-            public override TrainCard DecideTicket(TrainCard[] from, Game current)
-                => throw new ApplicationException();
-
-            public override Route NextClaim(Game current) 
-                => throw new ApplicationException();
         }
 
         public IEnumerable<Route> AvailableRoutes(Color key, int ticketCount = int.MaxValue)

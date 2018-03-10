@@ -1,5 +1,6 @@
 ﻿using System;
 using TrainGame;
+using TrainGame.Players;
 
 namespace TrainGameRunner
 {

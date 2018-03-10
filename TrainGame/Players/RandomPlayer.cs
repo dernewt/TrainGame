@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TrainGame
+namespace TrainGame.Players
 {
     public class RandomPlayer : Player
     {
@@ -15,6 +15,7 @@ namespace TrainGame
         }
 
         public RandomPlayer(int seed)
+            :base()
         {
             Seed = seed;
             Entropy = new Random(Seed);

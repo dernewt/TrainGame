@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
 
-namespace TrainGame
+namespace TrainGame.Players
 {
     public abstract class Player
     {
         public List<DestinationCard> Destinations { get; } = new List<DestinationCard>(10);
         public List<TrainCard> Tickets { get; } = new List<TrainCard>(30);
-        public int Trains { get; set; } = Game.PlayerTrainStart;
+        public int Trains { get; set; } = 0;
         public int Score { get; set; } = 0;
-        public string Name { get; }
+        public string Name { get; set; }
 
         public Player()
         {
-            Name = DecideName();
         }
 
         public abstract string DecideName();

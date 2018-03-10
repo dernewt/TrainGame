@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TrainGame.Rules;
 
 namespace TrainGame
 {
@@ -7,12 +8,12 @@ namespace TrainGame
     {
         public List<T> Discard { get; }
 
-        public DiscardableDeck(Random entropy, int capacity) : base(entropy, capacity)
+        public DiscardableDeck(Random entropy, Rule ruleSet, int capacity) : base(entropy, ruleSet, capacity)
         {
             Discard = new List<T>(capacity);
         }
 
-        public DiscardableDeck(Random entropy, IEnumerable<T> data) : base(entropy, data)
+        public DiscardableDeck(Random entropy, Rule ruleSet, IEnumerable<T> data) : base(entropy, ruleSet, data)
         {
             Discard = new List<T>(Capacity);
         }

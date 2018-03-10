@@ -2,31 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TrainGame.Players;
+using TrainGame.Rules;
 
 namespace TrainGame
 {
     public class Game
     {
-        public static int PlayerTrainMinimum { get; } = 3;
-        public static int PlayerTrainStart { get; } = 45;
-        public static int PlayerAlternateRouteMinimum { get; } = 3;
-        public static int TicketDrawMaximum { get; } = 2;
-        public static int TicketShownMaximum { get; } = 5;
-        public static int TicketAnyShownMaximum { get; } = 3;
-        public static int TicketsPerColor { get; } = 45;
-        public static int DestinationDrawMaximum { get; } = 3;
-        public static int DestinationDrawMinimum { get; } = 2;
-        public static Dictionary<int,int> RouteLengthScore { get; } = new Dictionary<int, int>
-        {
-            { 1, 1 },
-            { 2, 2 },
-            { 3, 4 },
-            { 4, 7 },
-            { 5, 10 },
-            { 6, 15 },
-        };
-
         public Player[] Players { get; }
+        public Rule RuleSet { get; }
         public DiscardableDeck<TrainCard> TicketDeck { get;}
         public TrainCard[] TicketDisplay { get; }
         public Deck<DestinationCard> DestinationDeck { get; }
@@ -34,22 +18,31 @@ namespace TrainGame
 
         protected Random Entropy;
 
-        public Game(Player[] players, int? seed = null)
+        public Game(Player[] players, Rule ruleSet = null, int? seed = null)
         {
+            RuleSet = ruleSet ?? new Standard();
+
             Entropy = new Random(seed ?? Guid.NewGuid().GetHashCode());
 
             Players = players;
+            foreach (var player in Players)
+            {
+                player.Trains = RuleSet.PlayerTrainStart;
+                player.Name = player.DecideName();
+            }
+
+            RuleSet = ruleSet;
 
             Board = new RouteMap(GenerateRoutes(),
-                Players.Length > PlayerAlternateRouteMinimum);
+                Players.Length > RuleSet.PlayerAlternateRouteMinimum);
 
-            TicketDeck = new DiscardableDeck<TrainCard>(Entropy, GenerateTickets());
+            TicketDeck = new DiscardableDeck<TrainCard>(Entropy, RuleSet, GenerateTickets());
             TicketDeck.Shuffle();
 
-            DestinationDeck = new Deck<DestinationCard>(Entropy, GenerateDestinations());
+            DestinationDeck = new Deck<DestinationCard>(Entropy, RuleSet, GenerateDestinations());
             DestinationDeck.Shuffle();
 
-            TicketDisplay = TicketDeck.Draw(TicketShownMaximum).ToArray();
+            TicketDisplay = TicketDeck.Draw(RuleSet.TicketShownMaximum).ToArray();
             EnsureTicketDisplayValid();
 
         }
@@ -85,7 +78,7 @@ namespace TrainGame
                         case PlayerAction.ClaimRoute:
                             var route = player.NextClaim(this);
                             Claim(route, player);
-                            if (player.Trains < PlayerTrainMinimum)
+                            if (player.Trains < RuleSet.PlayerTrainMinimum)
                                 gameActive = false;
                             break;
 
@@ -104,7 +97,7 @@ namespace TrainGame
                             TrainCard pick;
                             ScopeChoices(() =>
                             {
-                                var left = TicketDrawMaximum;
+                                var left = RuleSet.TicketDrawMaximum;
                                 do
                                 {
                                     pick = player.DecideTicket(TicketDisplay, this);
@@ -154,7 +147,7 @@ namespace TrainGame
             Board.Claim(route, player); //GOTCHA can throw ArgumentException, do this first before changing things
             player.Tickets.RemoveAll(t => spent.Contains(t));
             player.Trains -= route.Tag.Length;
-            player.Score += RouteLengthScore[route.Tag.Length];
+            player.Score += RuleSet.RouteLengthScore[route.Tag.Length];
         }
 
         public void Claim(IEnumerable<DestinationCard> picks, Player player)
@@ -182,9 +175,9 @@ namespace TrainGame
 
         protected void EnsureTicketDisplayValid()
         {
-            var isDeckBigEnough = TicketDeck.Concat(TicketDeck.Discard).Count(c => c.Color != Color.Any) >= TicketDisplay.Length - TicketAnyShownMaximum;
+            var isDeckBigEnough = TicketDeck.Concat(TicketDeck.Discard).Count(c => c.Color != Color.Any) >= TicketDisplay.Length - RuleSet.TicketAnyShownMaximum;
 
-            while (TicketDisplay.Count(c => c.Color == Color.Any) < TicketAnyShownMaximum && isDeckBigEnough)
+            while (TicketDisplay.Count(c => c.Color == Color.Any) < RuleSet.TicketAnyShownMaximum && isDeckBigEnough)
             {
                 TicketDeck.Discard.AddRange(TicketDisplay);
                 var index = 0;
@@ -338,10 +331,10 @@ namespace TrainGame
         protected List<TrainCard> GenerateTickets()
         {
             var cardTypes = (Color[]) Enum.GetValues(typeof(Color));
-            var cards = new List<TrainCard>(cardTypes.Length * TicketsPerColor);
+            var cards = new List<TrainCard>(cardTypes.Length * RuleSet.TicketsPerColor);
 
             foreach (var cardType in cardTypes)
-                cards.AddRange(Enumerable.Repeat(new TrainCard(cardType), TicketsPerColor));
+                cards.AddRange(Enumerable.Repeat(new TrainCard(cardType), RuleSet.TicketsPerColor));
 
             return cards;
         }
