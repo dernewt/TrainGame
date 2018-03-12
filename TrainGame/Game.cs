@@ -31,8 +31,6 @@ namespace TrainGame
                 player.Name = player.DecideName();
             }
 
-            RuleSet = ruleSet;
-
             Board = new RouteMap(GenerateRoutes(),
                 Players.Length > RuleSet.PlayerAlternateRouteMinimum);
 

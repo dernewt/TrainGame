@@ -31,19 +31,54 @@ namespace TrainGame
             return openRoutes;
         }
 
-        public DestinationCard LongestDestination(Player target)
+        public IEnumerable<Route> AvailableRoutes(Color key, int ticketCount = int.MaxValue)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Route> AvailableRoutes(Color key, int ticketCount = int.MaxValue)
+        public DestinationCard LongestDestination(Player target)
         {
             throw new NotImplementedException();
         }
 
         public void Claim(Route route, Player player)
         {
-            throw new NotImplementedException();
+            if (route.Tag.Owner != null)
+                throw new ArgumentException("Already claimed?!");
+
+            route.Tag.Owner = player;
+
+            if (!AllowMultipleRoutes)
+            {
+                var paralellEdges = Map.Edges.Where(
+                    e =>
+                    e.Source == route.Source
+                    && e.Target == route.Target
+                    && e != route);
+
+                foreach (var edge in paralellEdges)
+                {
+                    edge.Tag.Owner = new Disabled();
+                }
+            }
+        }
+
+        protected class Disabled : Player
+        {
+            public override PlayerAction DecideAction(Game state)
+                => throw new NotSupportedException();
+
+            public override IEnumerable<DestinationCard> DecideDestinations(IEnumerable<DestinationCard> choices, Game g)
+                => throw new NotSupportedException();
+
+            public override string DecideName()
+                => throw new NotSupportedException();
+
+            public override TrainCard DecideTicket(TrainCard[] TicketDisplay, Game current)
+                => throw new NotSupportedException();
+
+            public override Route NextClaim(Game current)
+                => throw new NotSupportedException();
         }
     }
 
@@ -64,7 +99,7 @@ namespace TrainGame
     {
         public Color Color { get; }
         public int Length { get; }
-        public Player Owner { get; set; }
+        public Player Owner { get; set; } = null;
 
         public EdgeProperties(Color color, int length)
         {
