@@ -47,9 +47,7 @@ namespace TrainGame.Players
         /// <returns>Any number of cards (may not even be valid)</returns>
         public override IEnumerable<DestinationCard> DecideDestinations(IEnumerable<DestinationCard> choices, Game g = null)
         {
-            var hand = new Deck<DestinationCard>(Entropy, choices);
-            hand.Shuffle();
-            return hand.Take(Entropy.Next(1, choices.Count()));
+            return choices.Take(Entropy.Next(2, 3));
         }
         
         public override Route NextClaim(Game current)
