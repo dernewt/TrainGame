@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using QuickGraph;
-using QuickGraph.Algorithms;
+using QuickGraph.Algorithms.ShortestPath;
+using QuickGraph.Algorithms.Search;
 using TrainGame.Players;
 
 namespace TrainGame
@@ -10,34 +11,45 @@ namespace TrainGame
     public class RouteMap
     {
         protected UndirectedGraph<City, Route> Map;
-        protected readonly bool AllowMultipleRoutes;
+        protected readonly bool AllowParallelRoutes;
 
-        public RouteMap(IEnumerable<Route> connections, bool allowMultipleRoutes = false)
-        {
-            Map = new UndirectedGraph<City, Route>(true);
-            Map.AddVerticesAndEdgeRange(connections);
-            AllowMultipleRoutes = allowMultipleRoutes;
-        }
-        public bool IsMet(DestinationCard destination, Player player)
-        {
-            var start = Map.Vertices.Single(v => v == destination.Start);
-            //Map.
-            throw new NotImplementedException();
-        }
 
-        public IEnumerable<Route> AvailableRoutes(City start, City end, Player player)
+
+        public RouteMap(IEnumerable<Route> connections, bool allowParalellRoutes = false)
         {
-            var openRoutes = new List<Route>();
-            return openRoutes;
+            Map = MapFactory(connections);
+            AllowParallelRoutes = allowParalellRoutes;
+        }
+        public bool IsMet(DestinationCard destination, Player target)
+        {
+            var playerMap = MapFactory(Map.Edges.Where(e => e.Tag.Owner == target));
+
+            var dfs = new UndirectedBreadthFirstSearchAlgorithm<City, Route>(playerMap);
+
+            var found = false;
+            dfs.DiscoverVertex += new VertexAction<City>(c =>
+            {
+                if (c == destination.End)
+                {
+                    found = true;
+                    dfs.Abort();
+                }
+            });
+            dfs.Compute(destination.Start);
+            return found;
         }
 
         public IEnumerable<Route> AvailableRoutes(Color key, int ticketCount = int.MaxValue)
         {
-            throw new NotImplementedException();
+            return Map.Edges.Where(e => (e.Tag.Color == key || e.Tag.Color == Color.Any)
+            && e.Tag.Length <= ticketCount
+            && e.Tag.Owner == null);
         }
 
         public DestinationCard LongestDestination(Player target)
         {
+            var playerMap = MapFactory(Map.Edges.Where(e => e.Tag.Owner == target));
+            //var sp = new BellmanFordShortestPathAlgorithm<City, Route>(playerMap, new Func<Route, double>(e=>e.Tag.Length*-1));
             throw new NotImplementedException();
         }
 
@@ -48,7 +60,7 @@ namespace TrainGame
 
             route.Tag.Owner = player;
 
-            if (!AllowMultipleRoutes)
+            if (!AllowParallelRoutes)
             {
                 var paralellEdges = Map.Edges.Where(
                     e =>
@@ -61,6 +73,13 @@ namespace TrainGame
                     edge.Tag.Owner = new Disabled();
                 }
             }
+        }
+
+        protected UndirectedGraph<City, Route> MapFactory(IEnumerable<Route> edges)
+        {
+            var map = new UndirectedGraph<City, Route>(true);
+            map.AddVerticesAndEdgeRange(edges);
+            return map;
         }
 
         protected class Disabled : Player
