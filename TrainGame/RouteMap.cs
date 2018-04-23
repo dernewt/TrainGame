@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 using QuickGraph;
 using QuickGraph.Algorithms.ShortestPath;
+using QuickGraph.Algorithms;
+using TrainGame.QuickGraphExtensions;
 using QuickGraph.Algorithms.Search;
 using TrainGame.Players;
 
@@ -24,19 +26,19 @@ namespace TrainGame
         {
             var playerMap = MapFactory(Map.Edges.Where(e => e.Tag.Owner == target));
 
-            var dfs = new UndirectedBreadthFirstSearchAlgorithm<City, Route>(playerMap);
+            var search = new UndirectedBreadthFirstSearchAlgorithm<City, Route>(playerMap);
 
-            var found = false;
-            dfs.DiscoverVertex += new VertexAction<City>(c =>
+            var foundEnd = false;
+            search.DiscoverVertex += new VertexAction<City>(c =>
             {
                 if (c == destination.End)
                 {
-                    found = true;
-                    dfs.Abort();
+                    foundEnd = true;
+                    search.Abort();
                 }
             });
-            dfs.Compute(destination.Start);
-            return found;
+            search.Compute(destination.Start);
+            return foundEnd;
         }
 
         public IEnumerable<Route> AvailableRoutes(Color key, int ticketCount = int.MaxValue)
@@ -46,11 +48,21 @@ namespace TrainGame
             && e.Tag.Owner == null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
         public DestinationCard LongestDestination(Player target)
         {
             var playerMap = MapFactory(Map.Edges.Where(e => e.Tag.Owner == target));
-            //var sp = new BellmanFordShortestPathAlgorithm<City, Route>(playerMap, new Func<Route, double>(e=>e.Tag.Length*-1));
-            throw new NotImplementedException();
+
+            var longestPath = playerMap.LongestPathDynamicProgramming(r=>r.Tag.Length);
+
+            if(longestPath.Any())
+                return new DestinationCard(longestPath.First().Source, longestPath.Last().Target, longestPath.Sum(r=>r.Tag.Length));
+
+            return DestinationCard.DestinationCardNull;
         }
 
         public void Claim(Route route, Player player)
@@ -99,6 +111,8 @@ namespace TrainGame
             public override Route NextClaim(Game current)
                 => throw new NotSupportedException();
         }
+
+        
     }
 
     public class Route : TaggedUndirectedEdge<City, EdgeProperties>

@@ -15,6 +15,8 @@ namespace TrainGame
             Points = points;
             Length = length;
         }
+
+        public static DestinationCard DestinationCardNull { get; } = new DestinationCard(City.Raleigh, City.Raleigh, 0, 0);
     }
     
 }

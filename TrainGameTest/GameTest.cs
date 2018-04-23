@@ -5,10 +5,6 @@ namespace TrainGameTest
 {
     public class GameTest
     {
-        [Fact]
-        public void Test1()
-        {
 
-        }
     }
 }
