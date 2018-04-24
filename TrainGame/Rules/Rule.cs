@@ -13,6 +13,7 @@ namespace TrainGame.Rules
         public abstract int TicketsPerColor { get; }
         public abstract int DestinationDrawMaximum { get; }
         public abstract int DestinationDrawMinimum { get; }
+        public abstract int LongestDestinationWorth { get; }
         public abstract Dictionary<int, int> RouteLengthScore { get; }
     }
 }

@@ -111,8 +111,7 @@ namespace TrainGame
 
         public IOrderedEnumerable<Player> ScoreDestinations()
         {
-            var routeWinner = Players.OrderBy(p => Board.LongestDestination(p).Length).First();
-            routeWinner.Destinations.Add(Board.LongestDestination(routeWinner));
+            var longestDestinationLength = new Dictionary<Player, int>();
 
             foreach (var player in Players)
             {
@@ -123,10 +122,16 @@ namespace TrainGame
                     else
                         player.Score -= destination.Points;
                 }
+
+                longestDestinationLength.Add(player, Board.LongestDestination(player).Length);
             }
 
+            longestDestinationLength.OrderByDescending(d => d.Value)
+                .First()
+                .Key.Score += RuleSet.LongestDestinationWorth;
+
             return Players.OrderByDescending(p => p.Score)
-                .ThenByDescending(p=> Board.LongestDestination(p).Length);
+                .ThenByDescending(p=> longestDestinationLength[p]);
         }
 
         public void Claim(Route route, Player player)

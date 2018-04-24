@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace TrainGame.Rules
 {
@@ -15,6 +13,7 @@ namespace TrainGame.Rules
         public override int TicketsPerColor { get; } = 45;
         public override int DestinationDrawMaximum { get; } = 3;
         public override int DestinationDrawMinimum { get; } = 2;
+        public override int LongestDestinationWorth { get; } = 10;
         public override Dictionary<int, int> RouteLengthScore { get; } = new Dictionary<int, int>
         {
             { 1, 1 },
