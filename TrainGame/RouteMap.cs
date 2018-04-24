@@ -57,10 +57,10 @@ namespace TrainGame
         {
             var playerMap = MapFactory(Map.Edges.Where(e => e.Tag.Owner == target));
 
-            var longestPath = playerMap.LongestPathDynamicProgramming(r=>r.Tag.Length);
+            var longestPath = playerMap.LongestPathBruteDepthFirst(r=>r.Tag.Length);
 
             if(longestPath.Any())
-                return new DestinationCard(longestPath.First().Source, longestPath.Last().Target, longestPath.Sum(r=>r.Tag.Length));
+                return new DestinationCard(longestPath.First().Source, longestPath.Last().Target, 0, longestPath.Sum(r=>r.Tag.Length));
 
             return DestinationCard.DestinationCardNull;
         }

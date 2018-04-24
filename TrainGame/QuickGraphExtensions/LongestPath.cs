@@ -9,42 +9,59 @@ namespace TrainGame.QuickGraphExtensions
     public static class QuickGraphExtensions
     {
 
-        public static IEnumerable<TEdge> LongestPathDynamicProgramming<TVertex, TEdge>(this UndirectedGraph<TVertex, TEdge> graph, Func<TEdge, double> edgeWeights)
+        public static IEnumerable<TEdge> LongestPathBruteDepthFirst<TVertex, TEdge>
+            (
+                this UndirectedGraph<TVertex, TEdge> graph,
+                Func<TEdge,double> getEdgeWeight
+            )
             where TEdge : IEdge<TVertex>
-            where TVertex : class
         {
             var search = new UndirectedDepthFirstSearchAlgorithm<TVertex, TEdge>(graph);
-            var bestPath = new List<TEdge>();
+            var bestPath = new TEdge[0];
             var bestSum = 0d;
             foreach (var vertex in graph.Vertices)
             {
-                if (new[] { bestPath.FirstOrDefault(), bestPath.LastOrDefault() }.Any(r => r.Source == vertex || r.Target == vertex))
+                if (bestPath.Any() && new[] { bestPath.First(), bestPath.Last() }.Any(r => r.Source.Equals(vertex) || r.Target.Equals(vertex)))
                     continue;
 
-                var currentPath = new List<TEdge>();
+                var currentPath = new Stack<TEdge>();
                 var currentSum = 0d;
 
-                var countEdge = new UndirectedEdgeAction<TVertex, TEdge>((sender, args) =>
+                Action unCount = () =>
                 {
-                    currentPath.Add(args.Edge);
-                    currentSum += edgeWeights(args.Edge);
-                });
-                var unCountEdge = new UndirectedEdgeAction<TVertex, TEdge>((sender, args) =>
-                {
-                    currentPath.Remove(args.Edge);
-                    currentSum -= edgeWeights(args.Edge);
-                });
+                    if(currentPath.Any())
+                    {
+                        var edge = currentPath.Pop();
+                        currentSum -= getEdgeWeight(edge);
+                    }
+                };
 
-                //search.DiscoverVertex += new VertexAction<TVertex>(c => { });
-                search.ExamineEdge += countEdge;
-                //search.TreeEdge
-                search.ForwardOrCrossEdge += unCountEdge;
-                search.BackEdge += unCountEdge;
+                UndirectedEdgeAction<TVertex, TEdge> countEdge = (sender, args) =>
+                {
+                    currentPath.Push(args.Edge);
+                    currentSum += getEdgeWeight(args.Edge);
+
+                    if (currentSum > bestSum)
+                    {
+                        bestPath = currentPath.ToArray();
+                        bestSum = currentSum;
+                    }
+                };
+
+                UndirectedEdgeAction<TVertex, TEdge> countUncountEdge = (sender, args) =>
+                {
+                    countEdge(sender, args);
+                    unCount();
+                };
+
+                search.TreeEdge += countEdge;
+                search.ForwardOrCrossEdge += countUncountEdge;
+                search.BackEdge += countUncountEdge;
+                search.FinishVertex += delegate { unCount(); };
 
                 search.Compute(vertex);
             }
 
-            throw new NotImplementedException("TODO"); //TODO
             return bestPath;
         }
 
