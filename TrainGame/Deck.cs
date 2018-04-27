@@ -24,12 +24,15 @@ namespace TrainGame
             RuleSet = ruleSet;
         }
 
-        public T Draw()
+        public virtual bool CanDraw(int count = 1, Func<T, bool> having = null)
+            => having == null ? this.Count() >= 1 : this.Count(having) >= 1;
+
+        public virtual T Draw()
             => Draw(1).Single();
 
         public virtual IEnumerable<T> Draw(int count)
         {
-            var cards = this.Take(count);
+            var cards = this.Take(count).ToArray();
             RemoveRange(0, count);
             return cards;
         }

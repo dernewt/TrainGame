@@ -93,6 +93,8 @@ namespace TrainGame
 
                         case PlayerAction.DrawTicket:
                             TrainCard pick;
+                            if (TicketDisplay.All(c=>c==null))
+                                throw new ArgumentException("Nothing left to draw from");
                             ScopeChoices(() =>
                             {
                                 var left = RuleSet.TicketDrawMaximum;
@@ -158,34 +160,46 @@ namespace TrainGame
             player.Destinations.AddRange(picks);
         }
 
-        public bool Claim(TrainCard pick, Player player, int left)
+        public bool Claim(TrainCard pick, Player player, int claimsLeft)
         {
             if (pick == null)
             {
+                if (!TicketDeck.CanDraw())
+                    throw new ArgumentException("There is nothing left to draw");
+
                 player.Tickets.Add(TicketDeck.Draw());
-                return left > 0;
+                return claimsLeft > 0;
             }
 
             player.Tickets.Add(pick);
 
-            TicketDisplay[TicketDisplay.FindIndex(pick)] = TicketDeck.Draw();
+            TicketDisplay[TicketDisplay.FindIndex(pick)] = null;
+
             EnsureTicketDisplayValid();
 
-
-
-            return pick.Color != Color.Any && left > 0;
+            return pick.Color != Color.Any && TicketDisplay.Any(c=>c?.Color != Color.Any) && claimsLeft > 0;
         }
 
         protected void EnsureTicketDisplayValid()
         {
-            var isDeckBigEnough = TicketDeck.Concat(TicketDeck.Discard).Count(c => c.Color != Color.Any) >= TicketDisplay.Length - RuleSet.TicketAnyShownMaximum;
-
-            while (TicketDisplay.Count(c => c.Color == Color.Any) < RuleSet.TicketAnyShownMaximum && isDeckBigEnough)
+            for (int i = 0; i < TicketDisplay.Length; i++)
             {
-                TicketDeck.Discard.AddRange(TicketDisplay);
-                var index = 0;
-                foreach (var item in TicketDeck.Draw(TicketDisplay.Length))
-                    TicketDisplay[index++] = item;
+                if (TicketDisplay[i] == null && TicketDeck.CanDraw())
+                    TicketDisplay[i] = TicketDeck.Draw();
+            }
+
+            var isDeckBigEnough = TicketDeck.CanDraw(TicketDisplay.Length - RuleSet.TicketAnyShownMaximum,
+                c => c.Color != Color.Any);
+
+            if(isDeckBigEnough)
+            {
+                while (TicketDisplay.Count(c => c.Color == Color.Any) >= RuleSet.TicketAnyShownMaximum)
+                {
+                    TicketDeck.Discard.AddRange(TicketDisplay);
+                    var index = 0;
+                    foreach (var item in TicketDeck.Draw(TicketDisplay.Length))
+                        TicketDisplay[index++] = item;
+                }
             }
         }
 

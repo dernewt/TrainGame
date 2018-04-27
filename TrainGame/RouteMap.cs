@@ -37,7 +37,10 @@ namespace TrainGame
                     search.Abort();
                 }
             });
-            search.Compute(destination.Start);
+
+            if(playerMap.Vertices.Contains(destination.Start))
+                search.Compute(destination.Start);
+
             return foundEnd;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TrainGame.Rules;
+using System.Linq;
 
 namespace TrainGame
 {
@@ -18,6 +19,11 @@ namespace TrainGame
             Discard = new List<T>(Capacity);
         }
 
+        public override T Draw()
+        {
+            return Draw(1).Single();
+        }
+
         public override IEnumerable<T> Draw(int count)
         {
             if(count > Count)
@@ -25,6 +31,9 @@ namespace TrainGame
 
             return base.Draw(count);
         }
+
+        public override bool CanDraw(int count = 1, Func<T, bool> having = null)
+            => having == null ? Discard.Count+Count >= 1 : this.Concat(Discard).Count(having) >= 1;
 
         public override void Shuffle()
         {
