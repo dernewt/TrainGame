@@ -65,10 +65,8 @@ namespace TrainGame
         {
 
             var gameActive = true;
-            while (gameActive)
+            foreach (var player in Players.Cycle())
             {
-                var player = Players.Cycle().First();
-
                 ScopeChoices(() =>
                 {
                     switch (player.Destinations.Any() ? player.DecideAction(this) : PlayerAction.DrawDestination)
@@ -106,6 +104,9 @@ namespace TrainGame
                             break;
                     };
                 });
+
+                if (!gameActive)
+                    break;
             }
 
             return ScoreDestinations();
