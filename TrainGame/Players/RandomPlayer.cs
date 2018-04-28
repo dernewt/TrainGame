@@ -33,10 +33,16 @@ namespace TrainGame.Players
         /// <returns>Any action (may not even be valid)</returns>
         public override PlayerAction DecideAction(Game state = null)
         {
-            var allActions = Enum.GetValues(typeof(PlayerAction));
+            switch (Entropy.Next(100))
+            {
+                case int i when (i >= 50):
+                    return PlayerAction.DrawDestination;
+                case int i when (i <= 3):
+                    return PlayerAction.DrawTicket;
+                default:
+                    return PlayerAction.ClaimRoute;
+            }
 
-            return (PlayerAction)allActions.GetValue(
-                Entropy.Next(allActions.Length));
         }
 
         /// <remarks>
