@@ -57,7 +57,17 @@ namespace TrainGame
         }
 
         public static IEnumerable<DestinationCard> DrawOptions(this Deck<DestinationCard> deck)
-        => deck.Draw(deck.RuleSet.DestinationDrawMaximum);
+        {
+            if (!deck.Any())
+                throw new ArgumentException("There is nothing left to draw from");
+
+            var hand = deck.RuleSet.DestinationDrawMaximum < deck.Count ?
+                deck.RuleSet.DestinationDrawMaximum
+                : deck.Count;
+
+            return deck.Draw(hand);
+        }
+        
 
         public static void ReturnOptions(this Deck<DestinationCard> deck, IEnumerable<DestinationCard> cards)
         {
