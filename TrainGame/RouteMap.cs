@@ -44,6 +44,9 @@ namespace TrainGame
             return foundEnd;
         }
 
+        public IEnumerable<Route> OwnedRoutes(Player target)
+        => MapFactory(Map.Edges.Where(e => e.Tag.Owner == target)).Edges;
+
         public IEnumerable<Route> AvailableRoutes(Color key, int ticketCount = int.MaxValue)
         {
             return Map.Edges.Where(e => (e.Tag.Color == key || e.Tag.Color == Color.Any)
