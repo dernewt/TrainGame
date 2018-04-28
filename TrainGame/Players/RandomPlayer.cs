@@ -36,9 +36,9 @@ namespace TrainGame.Players
             switch (Entropy.Next(100))
             {
                 case int i when (i >= 50):
-                    return PlayerAction.DrawDestination;
-                case int i when (i <= 3):
                     return PlayerAction.DrawTicket;
+                case int i when (i <= 1):
+                    return PlayerAction.DrawDestination;
                 default:
                     return PlayerAction.ClaimRoute;
             }
