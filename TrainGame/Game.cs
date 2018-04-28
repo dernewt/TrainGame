@@ -141,9 +141,9 @@ namespace TrainGame
         {
             if (player.Trains < route.Tag.Length)
                 throw new ArgumentException("you don't have enough trains");
-
+            //TODO allow for explicit spending of tickets 
             var spent = player.Tickets
-                .Where(t => t.Color == route.Tag.Color || t.Color == Color.Any)
+                .Where(t => route.Tag.Color == Color.Any || t.Color == route.Tag.Color || t.Color == Color.Any)
                 .OrderByDescending(t=>t.Color) //GOTCHA  Color.Any == 0 which is always last
                 .Take(route.Tag.Length);
 

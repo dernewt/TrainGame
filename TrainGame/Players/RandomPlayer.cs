@@ -58,7 +58,7 @@ namespace TrainGame.Players
 
             foreach (var ticket in mostToLeast)
             {
-                var routes = current.Board.AvailableRoutes(ticket.Color, ticket.Count);
+                var routes = current.Board.AvailableRoutes(ticket.Color, Trains < ticket.Count ? Trains : ticket.Count);
                 if (routes.Any())
                     return routes.First();
             }
