@@ -61,37 +61,33 @@ namespace TrainGame.Players
         public override Route NextClaim(Game current)
         {
 
-            //focus on unmet destinations
-            foreach (var destination in Destinations)
+            //focus on unmet destinations then any big route
+            foreach (var destination in Destinations.Concat(new[]{ DestinationCard.DestinationCardNull}))
             {
-                if (current.Board.IsMet(destination, this))
-                    continue;
-
-                var route = current.Board.ShortestRoute(destination, this);
-                if (!route.Any())
-                    continue;
-
-                var edges = route.Where(r => r.Tag.Owner == null).OrderBy(r => r.Tag.Length);
-                foreach (var edge in edges)
+                IOrderedEnumerable<Route> routes;
+                if (destination == DestinationCard.DestinationCardNull)
                 {
-                    var resources = Tickets.Count(t => t.Color == Color.Any || t.Color == edge.Tag.Color);
-                    resources = resources < Trains ? resources : Trains;
-                    if (edge.Tag.Length <= resources)
-                        return edge;
+                    routes = current.Board.AvailableRoutes().OrderByDescending(r => r.Tag.Length);
+                } else
+                {
+                    if (current.Board.IsMet(destination, this))
+                        continue;
+
+                    routes = current.Board.ShortestRoute(destination, this)
+                        .Where(r => r.Tag.Owner == null)
+                        .OrderByDescending(r => r.Tag.Length);
                 }
-            }
 
-            //else just do whatever you can
-            //BUG doesn't use Color.Any
-            var mostToLeast = Tickets.GroupBy(t => t.Color)
-                .Select(t => new { Count=t.Count(), Color=t.Key})
-                .OrderBy(t=>t.Count);
+                if (!routes.Any())
+                    continue;
 
-            foreach (var ticket in mostToLeast)
-            {
-                var routes = current.Board.AvailableRoutes(ticket.Color, Trains < ticket.Count ? Trains : ticket.Count);
-                if (routes.Any())
-                    return routes.First();
+                foreach (var route in routes)
+                {
+                    var resources = Tickets.Count(t => t.Color == Color.Any || t.Color == route.Tag.Color);
+                    resources = resources < Trains ? resources : Trains;
+                    if (route.Tag.Length <= resources)
+                        return route;
+                }
             }
 
             //there are no available claims
