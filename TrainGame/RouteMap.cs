@@ -7,6 +7,7 @@ using QuickGraph.Algorithms;
 using TrainGame.QuickGraphExtensions;
 using QuickGraph.Algorithms.Search;
 using TrainGame.Players;
+using QuickGraph.Algorithms.Observers;
 
 namespace TrainGame
 {
@@ -52,6 +53,22 @@ namespace TrainGame
             return Map.Edges.Where(e => (e.Tag.Color == key || e.Tag.Color == Color.Any)
             && e.Tag.Length <= ticketCount
             && e.Tag.Owner == null);
+        }
+
+        public IEnumerable<Route> ShortestRoute(DestinationCard path, Player target)
+        {
+            var map = MapFactory(Map.Edges.Where(e => e.Tag.Owner == null || e.Tag.Owner == target));
+
+            IEnumerable<Route> shortestRoute = new Route[0];
+
+            var search = new UndirectedDijkstraShortestPathAlgorithm<City, Route>(map, e => 10 + e.Tag.Length * -1);
+            var distance = new UndirectedVertexPredecessorRecorderObserver<City, Route>();
+            using (distance.Attach(search))
+            {
+                search.Compute(path.Start);
+                distance.TryGetPath(path.End, out shortestRoute);
+            }
+            return shortestRoute;
         }
 
         /// <summary>

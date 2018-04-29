@@ -33,14 +33,16 @@ namespace TrainGame.Players
         /// <returns>Any action (may not even be valid)</returns>
         public override PlayerAction DecideAction(Game state = null)
         {
-            switch (Entropy.Next(100))
+            switch (Entropy.Next(1000))
             {
-                case int i when (i > 30):
+                
+                case int i when (i > 100+Tickets.Count*10):
                     return PlayerAction.DrawTicket;
-                case 0:
-                    return PlayerAction.DrawDestination;
-                default:
+                case int i when (i > 7):
                     return PlayerAction.ClaimRoute;
+                default:
+                    return PlayerAction.DrawDestination;
+                    
             }
 
         }
@@ -58,6 +60,29 @@ namespace TrainGame.Players
         
         public override Route NextClaim(Game current)
         {
+
+            //focus on unmet destinations
+            foreach (var destination in Destinations)
+            {
+                if (current.Board.IsMet(destination, this))
+                    continue;
+
+                var route = current.Board.ShortestRoute(destination, this);
+                if (!route.Any())
+                    continue;
+
+                var edges = route.Where(r => r.Tag.Owner == null).OrderBy(r => r.Tag.Length);
+                foreach (var edge in edges)
+                {
+                    var resources = Tickets.Count(t => t.Color == Color.Any || t.Color == edge.Tag.Color);
+                    resources = resources < Trains ? resources : Trains;
+                    if (edge.Tag.Length <= resources)
+                        return edge;
+                }
+            }
+
+            //else just do whatever you can
+            //BUG doesn't use Color.Any
             var mostToLeast = Tickets.GroupBy(t => t.Color)
                 .Select(t => new { Count=t.Count(), Color=t.Key})
                 .OrderBy(t=>t.Count);
