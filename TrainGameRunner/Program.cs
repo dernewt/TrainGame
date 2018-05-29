@@ -11,7 +11,11 @@ namespace TrainGameRunner
         static void Main(string[] args)
         {
             var timer = new Stopwatch();
-            var game = new Game(new[] { new RandomPlayer(), new RandomPlayer() });
+            var game = new Game(new Player[] {
+                new RandomPlayer(),
+                new RandomPlayer(),
+                new HumanPlayer(new ConsoleRenderer() )
+            });
 
             timer.Start();
             var leaderboard = game.Play();

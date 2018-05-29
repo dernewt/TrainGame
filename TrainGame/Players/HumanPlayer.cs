@@ -8,9 +8,10 @@ namespace TrainGame.Players
     {
         protected IRender Ui;
 
-        public HumanPlayer()
+        public HumanPlayer(IRender renderer)
             :base()
         {
+            Ui = renderer;
         }
 
         public override string DecideName() => Ui.Ask("Enter your name");
