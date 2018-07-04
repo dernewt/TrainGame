@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using QuickGraph;
 using QuickGraph.Algorithms.ShortestPath;
 using QuickGraph.Algorithms;
+using QuickGraph.Graphviz;
 using TrainGame.QuickGraphExtensions;
 using QuickGraph.Algorithms.Search;
 using TrainGame.Players;
@@ -108,6 +109,12 @@ namespace TrainGame
                     edge.Tag.Owner = new Disabled();
                 }
             }
+        }
+
+        public string ConvertToDot()
+        {
+            return new GraphvizAlgorithm<City, Route>(Map).Generate();
+
         }
 
         protected UndirectedGraph<City, Route> MapFactory(IEnumerable<Route> edges)
