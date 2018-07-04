@@ -6,12 +6,12 @@ namespace TrainGame.Players
 {
     public class HumanPlayer : Player
     {
-        protected IRender Ui;
+        protected IRenderHelper Ui;
 
-        public HumanPlayer(IRender renderer)
+        public HumanPlayer(IRenderHelper ui)
             :base()
         {
-            Ui = renderer;
+            Ui = ui;
         }
 
         public override string DecideName() => Ui.Ask("Enter your name");

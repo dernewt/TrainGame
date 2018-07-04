@@ -3,7 +3,7 @@ using TrainGame.Players;
 
 namespace TrainGame
 {
-    public interface IRender
+    public interface IRenderHelper
     {
         void RenderDisplay(Game current, HumanPlayer humanPlayer);
 

@@ -7,7 +7,7 @@ using TrainGame.Players;
 
 namespace TrainGameRunner
 {
-    class ConsoleRenderer : IRender
+    class ConsoleRenderer : IRenderHelper
     {
 
         public void RenderDisplay(Game current, HumanPlayer humanPlayer)
