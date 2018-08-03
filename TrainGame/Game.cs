@@ -15,6 +15,7 @@ namespace TrainGame
         public TrainCard[] TicketDisplay { get; }
         public Deck<DestinationCard> DestinationDeck { get; }
         public RouteMap Board { get; }
+        public List<Turn> Log { get; }
 
         protected Random Entropy;
 
@@ -23,6 +24,8 @@ namespace TrainGame
             RuleSet = ruleSet ?? new Standard();
 
             Entropy = new Random(seed ?? Guid.NewGuid().GetHashCode());
+
+            Log = new List<Turn>();
 
             Players = players;
             foreach (var player in Players)
@@ -69,7 +72,8 @@ namespace TrainGame
             {
                 ScopeChoices(() =>
                 {
-                    switch (player.Destinations.Any() ? player.DecideAction(this) : PlayerAction.DrawDestination)
+                    var move = player.Destinations.Any() ? player.DecideAction(this) : PlayerAction.DrawDestination;
+                    switch (move)
                     {
                         case PlayerAction.ClaimRoute:
                             var route = player.NextClaim(this);
@@ -103,6 +107,7 @@ namespace TrainGame
                             });
                             break;
                     };
+                    Log.Add(new Turn(player, move));
                 });
 
                 if (!gameActive)

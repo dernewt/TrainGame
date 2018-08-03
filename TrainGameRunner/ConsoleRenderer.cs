@@ -14,6 +14,11 @@ namespace TrainGameRunner
         {
             //Console.WriteLine($"{current.Board.ConvertToDot()}"); //this is worthless
 
+            foreach(var turn in current.Log.TakeLast(current.Players.Count()-1))
+            {
+                Console.WriteLine($"{turn.By.Name} {turn.Did}");
+            }
+
             Console.WriteLine();
 
             Console.WriteLine("You are holding these tickets:");

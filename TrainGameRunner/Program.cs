@@ -14,12 +14,17 @@ namespace TrainGameRunner
             var game = new Game(new Player[] {
                 new RandomPlayer(),
                 new RandomPlayer(),
-                new HumanPlayer(new ConsoleRenderer() )
+                //new HumanPlayer(new ConsoleRenderer() )
             });
 
             timer.Start();
             var leaderboard = game.Play();
             timer.Stop();
+
+            foreach (var turn in game.Log)
+            {
+                Console.WriteLine($"{turn.By.Name} {turn.Did}");
+            }
 
             Console.WriteLine($"Game took {timer.Elapsed.Seconds} seconds");
 
