@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MoreLinq;
 using TrainGame.Rules;
 
 namespace TrainGame
@@ -39,8 +40,7 @@ namespace TrainGame
 
         public virtual void Shuffle()
         {
-            //probbaly not a good idea, but it's easy!
-            Sort((x,y)=>Entropy.Next(-1,2));
+            MoreLinq.Extensions.ShuffleExtension.Shuffle(this, Entropy);
         }
     }
 

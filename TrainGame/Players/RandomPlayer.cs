@@ -7,7 +7,7 @@ namespace TrainGame.Players
     public class RandomPlayer : Player
     {
         protected Random Entropy;
-        protected int Seed { get; }
+        public int Seed { get; }
 
         public RandomPlayer()
             : this(Guid.NewGuid().GetHashCode())

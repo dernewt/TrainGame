@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="QuickGraph.All" Version="3.6.61119.8" />
   </ItemGroup>
