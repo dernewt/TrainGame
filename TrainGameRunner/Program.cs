@@ -1,14 +1,23 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TrainGame;
 using TrainGame.Players;
 
+var cts = new CancellationTokenSource();
+var ct = cts.Token;
+
+var tasks = Enumerable.Range(0, 5)
+    .Select(_ => Task.Run(() =>Stuff.FindBestSeed(150), ct));
+
+var winner = await await Task.WhenAny<int>(tasks);
+cts.Cancel();
+Console.Write(winner);
+
 //var bestSeed = Stuff.FindBestSeed(50);
-
-var bestSeed = Stuff.FindBestSeed(50);
-
-Stuff.ExampleGame();
+//Stuff.ExampleGame();
 
 public static class Stuff
 {
@@ -37,7 +46,7 @@ public static class Stuff
 
     public static int FindBestSeed(int rounds)
     {
-        var bestSeed = 1528091364;
+        var bestSeed = 415540345;
         var bestStreak = 0;
         var streak = 0;
 
