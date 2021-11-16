@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31903.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainGame", "TrainGame\TrainGame.csproj", "{405AB8A4-E28B-46F1-981B-A4311BE20E61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrainGame", "TrainGame\TrainGame.csproj", "{405AB8A4-E28B-46F1-981B-A4311BE20E61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainGameTest", "TrainGameTest\TrainGameTest.csproj", "{12498395-6D26-4A8B-8B29-CF1F23C3D667}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrainGameTest", "TrainGameTest\TrainGameTest.csproj", "{12498395-6D26-4A8B-8B29-CF1F23C3D667}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainGameRunner", "TrainGameRunner\TrainGameRunner.csproj", "{0ECAB908-E040-4371-BD34-AE1C69CA13DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrainGameRunner", "TrainGameRunner\TrainGameRunner.csproj", "{0ECAB908-E040-4371-BD34-AE1C69CA13DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

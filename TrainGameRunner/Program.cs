@@ -1,22 +1,13 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TrainGame;
 using TrainGame.Players;
-
-var cts = new CancellationTokenSource();
-var ct = cts.Token;
-
-var tasks = Enumerable.Range(0, 5)
-    .Select(_ => Task.Run(() =>Stuff.FindBestSeed(150), ct));
-
-var winner = await await Task.WhenAny<int>(tasks);
-cts.Cancel();
-Console.Write(winner);
+using TrainGameRunner;
 
 //var bestSeed = Stuff.FindBestSeed(50);
+//var bestSeed = await Stuff.FindBestSeedHarder(150,5);
 //Stuff.ExampleGame();
 
 public static class Stuff
@@ -42,6 +33,20 @@ public static class Stuff
                 $" Claimed {game.Board.OwnedRoutes(player).Count()} with {player.Trains} trains left" +
                 $" Chain of {game.Board.LongestDestination(player).Length} and {player.Destinations.Count(d => game.Board.IsMet(d, player))}/{player.Destinations.Count} Destinations");
         }
+    }
+
+    public static async Task<int> FindBestSeedHarder(int rounds, int threads)
+    {
+        var cts = new CancellationTokenSource();
+        var ct = cts.Token;
+
+        var tasks = Enumerable.Range(0, threads)
+            .Select(_ => Task.Run(() => FindBestSeed(rounds), ct));
+
+        var winner = await await Task.WhenAny<int>(tasks);
+        cts.Cancel();
+        Console.Write(winner);
+        return winner;
     }
 
     public static int FindBestSeed(int rounds)
