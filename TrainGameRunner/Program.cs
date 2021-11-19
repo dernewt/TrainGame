@@ -7,7 +7,8 @@ using TrainGame.Players;
 using TrainGameRunner;
 
 //var bestSeed = Stuff.FindBestSeed(50);
-//var bestSeed = await Stuff.FindBestSeedHarder(150,5);
+var bestSeed = await Stuff.FindBestSeedHarder(500,1);
+
 //Stuff.ExampleGame();
 
 public static class Stuff
@@ -15,7 +16,7 @@ public static class Stuff
     public static void ExampleGame()
     {
         var game = new Game(new Player[] {
-                new RandomPlayer(),
+                new RandomPlayer(415540345),
                 new RandomPlayer(),
                 //new HumanPlayer(new ConsoleRenderer() )
             });

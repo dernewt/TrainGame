@@ -1,4 +1,6 @@
-﻿namespace TrainGame
+﻿using TrainGame.Rules;
+
+namespace TrainGame
 {
     public class TrainCard
     {

@@ -1,6 +1,7 @@
 ﻿using Xunit;
 using TrainGame;
 using TrainGame.Players;
+using TrainGame.Rules;
 
 namespace TrainGameTest
 {

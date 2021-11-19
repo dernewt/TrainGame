@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TrainGame;
 using TrainGame.Players;
+using TrainGame.Rules;
+using QuickGraph;
 
 namespace TrainGameRunner
 {
@@ -12,7 +14,7 @@ namespace TrainGameRunner
 
         public void RenderDisplay(Game current, HumanPlayer player)
         {
-            //Console.WriteLine($"{current.Board.ConvertToDot()}"); //this is worthless
+            Render(current.Board.Map);
 
             foreach(var turn in current.Log.TakeLast(current.Players.Count()-1))
             {
@@ -66,7 +68,10 @@ namespace TrainGameRunner
         public IEnumerable<TrainCard> Pick(IEnumerable<TrainCard> choices, int countMinimum, int countMaximum)
             => Pick(choices, countMinimum, countMaximum, Render);
 
-
+        protected void Render(UndirectedGraph<City, Route> board)
+        {
+            throw new NotImplementedException();
+        }
         protected void Render(PlayerAction subject)
         {
             Console.WriteLine($"{subject}");

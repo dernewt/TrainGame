@@ -3,18 +3,17 @@ using System.Linq;
 using System.Collections.Generic;
 using QuickGraph;
 using QuickGraph.Algorithms.ShortestPath;
-using QuickGraph.Algorithms;
-using QuickGraph.Graphviz;
 using TrainGame.QuickGraphExtensions;
 using QuickGraph.Algorithms.Search;
 using TrainGame.Players;
+using TrainGame.Rules;
 using QuickGraph.Algorithms.Observers;
 
 namespace TrainGame
 {
     public class RouteMap
     {
-        protected UndirectedGraph<City, Route> Map;
+        public UndirectedGraph<City, Route> Map;
         protected readonly bool AllowParallelRoutes;
 
 
@@ -109,12 +108,6 @@ namespace TrainGame
                     edge.Tag.Owner = new Disabled();
                 }
             }
-        }
-
-        public string ConvertToDot()
-        {
-            return new GraphvizAlgorithm<City, Route>(Map).Generate();
-
         }
 
         protected UndirectedGraph<City, Route> MapFactory(IEnumerable<Route> edges)

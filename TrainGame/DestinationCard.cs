@@ -1,4 +1,5 @@
-﻿
+﻿using TrainGame.Rules;
+
 namespace TrainGame
 {
     public class DestinationCard
@@ -16,7 +17,7 @@ namespace TrainGame
             Length = length;
         }
 
-        public static DestinationCard DestinationCardNull { get; } = new DestinationCard(City.Raleigh, City.Raleigh, 0, 0);
+        public static DestinationCard DestinationCardNull { get; } = new DestinationCard(0, 0, 0, 0);
     }
     
 }
