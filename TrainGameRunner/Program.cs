@@ -7,9 +7,9 @@ using TrainGame.Players;
 using TrainGameRunner;
 
 //var bestSeed = Stuff.FindBestSeed(50);
-var bestSeed = await Stuff.FindBestSeedHarder(500,1);
+//var bestSeed = await Stuff.FindBestSeedHarder(500,1);
 
-//Stuff.ExampleGame();
+Stuff.ExampleGame();
 
 public static class Stuff
 {
