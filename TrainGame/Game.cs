@@ -72,6 +72,8 @@ public class Game
             ScopeChoices(() =>
             {
                 var move = player.Destinations.Any() ? player.DecideAction(this) : PlayerAction.DrawDestination;
+                var movePublicInfo = "";
+
                 switch (move)
                 {
                     case PlayerAction.ClaimRoute:
@@ -88,6 +90,7 @@ public class Game
                             var picks = player.DecideDestinations(choices, this);
                             Claim(picks, player);
                             DestinationDeck.ReturnOptions(choices.Except(picks));
+                            movePublicInfo = "Picked " + picks.Count();
                         });
 
                         break;
@@ -102,11 +105,12 @@ public class Game
                             do
                             {
                                 pick = player.DecideTicket(TicketDisplay, this);
+                                movePublicInfo += (movePublicInfo.Any() ? " " : "Picked ") + pick.Color;
                             } while (Claim(pick, player, --left));
                         });
                         break;
                 };
-                Log.Add(new Turn(player, move));
+                Log.Add(new Turn(player, move, movePublicInfo));
             });
 
             if (!gameActive)
