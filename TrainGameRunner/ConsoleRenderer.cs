@@ -16,15 +16,15 @@ namespace TrainGameRunner
         {
             Render(current.Board.Map);
 
-            foreach(var turn in current.Log.TakeLast(current.Players.Count()-1))
+            foreach (var turn in current.Log.TakeLast(current.Players.Count() - 1))
             {
-                Console.WriteLine($"{turn.By.Name} {turn.Did}");
+                Console.WriteLine($"{turn.By.Name} {turn.DidDescription}");
             }
 
             Console.WriteLine();
 
             Console.WriteLine("You are holding these tickets:");
-            foreach (var groupedTickets in player.Tickets.GroupBy(t => t.Color).OrderBy(tc=>tc.Key))
+            foreach (var groupedTickets in player.Tickets.GroupBy(t => t.Color).OrderBy(tc => tc.Key))
             {
                 Console.WriteLine($"{groupedTickets.Count()} {groupedTickets.Key}");
             }
@@ -70,7 +70,22 @@ namespace TrainGameRunner
 
         protected void Render(UndirectedGraph<City, Route> board)
         {
-            throw new NotImplementedException();
+            var rows = CityFactory.CityLayout.GetLength(0);
+            var cols = CityFactory.CityLayout.GetLength(1);
+            var horizontalSpacing = Console.WindowWidth / cols;
+
+            for (int row = 0; row < rows; row++)
+            {
+                for (int col = 0; col < cols; col++)
+                {
+                    var padded = string.Format("{0,-" + horizontalSpacing + "}",
+                        CityFactory.CityLayout[row, col]);
+                    Console.Write(padded);
+                }
+                Console.WriteLine();
+            }
+
+
         }
         protected void Render(PlayerAction subject)
         {

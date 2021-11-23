@@ -41,7 +41,7 @@ public enum City
 
 public static class CityFactory
 {
-    public static City?[,] CityLayout = { //6,6 = 36
+    public static City[,] CityLayout = { //6,6 = 36
         { City.Vancouver, City.Calgary, City.Winnipeg, City.SaultSteMarie, City.Montreal, City.Boston },
         { City.Seattle, City.Helena, City.Duluth, City.Chicago, City.Toronto, City.NewYorkCity},
         { City.Portland, City.Omaha, City.KansasCity, City.SaintLouis, City.Pittsburgh, City.WashingtonDc},
