@@ -19,14 +19,14 @@ namespace TrainGame
         }
 
         public Deck(Random entropy, Rule ruleSet, IEnumerable<T> data)
-            :base(data)
+            : base(data)
         {
             Entropy = entropy;
             RuleSet = ruleSet;
         }
 
         public virtual bool CanDraw(int count = 1, Func<T, bool> having = null)
-            => having == null ? this.Count() >= 1 : this.Count(having) >= 1;
+            => having == null ? Count >= count : this.Count(having) >= count;
 
         public virtual T Draw()
             => Draw(1).Single();
@@ -40,7 +40,10 @@ namespace TrainGame
 
         public virtual void Shuffle()
         {
-            MoreLinq.Extensions.ShuffleExtension.Shuffle(this, Entropy);
+            var newDeck = MoreLinq.Extensions.ShuffleExtension.Shuffle(this, Entropy)
+                .ToArray();
+            Clear();
+            AddRange(newDeck);
         }
     }
 
@@ -67,7 +70,7 @@ namespace TrainGame
 
             return deck.Draw(hand);
         }
-        
+
 
         public static void ReturnOptions(this Deck<DestinationCard> deck, IEnumerable<DestinationCard> cards)
         {
