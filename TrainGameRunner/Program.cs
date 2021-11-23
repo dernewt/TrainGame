@@ -9,17 +9,23 @@ using TrainGameRunner;
 //var bestSeed = Stuff.FindBestSeed(50);
 //var bestSeed = await Stuff.FindBestSeedHarder(500,1);
 
-Stuff.ExampleGame();
+Stuff.ExampleGame(1, 2);
 
 public static class Stuff
 {
-    public static void ExampleGame()
+    public static void ExampleGame(int humanPlayers, int bots)
     {
-        var game = new Game(new Player[] {
-                new RandomPlayer(415540345),
-                new RandomPlayer(),
-                //new HumanPlayer(new ConsoleRenderer() )
-            });
+        var screen = new ConsoleRenderer();
+        var players = new Player[humanPlayers + bots];
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (i < humanPlayers)
+                players[i] = new HumanPlayer(screen);
+            else
+                players[i] = new RandomPlayer();
+        }
+
+        var game = new Game(players);
 
         var leaderboard = game.Play();
 
