@@ -13,19 +13,97 @@ namespace TrainGame
 {
     public class RouteMap
     {
-        public UndirectedGraph<City, Route> Map;
+        protected UndirectedGraph<City, Route> Routes;
+        public readonly City[][] Map = CityFactory.CityLayout;
+        protected Dictionary<City, (int, int)> MapMap;
         protected readonly bool AllowParallelRoutes;
-
-
 
         public RouteMap(IEnumerable<Route> connections, bool allowParalellRoutes = false)
         {
-            Map = MapFactory(connections);
+            MapMap = CityFactory.CityLayout.SelectMany((cities, row) => cities.Select((city, col) => new { city, row, col }))
+                .ToDictionary(x => x.city, x => (x.row, x.col));
+            Routes = MapFactory(connections);
             AllowParallelRoutes = allowParalellRoutes;
         }
+
+        public City? NextOrDefault(City? source) => Nexts(source).FirstOrDefault();
+        public IEnumerable<City> Nexts(City? source)
+        {
+            if (!source.HasValue || !MapMap.ContainsKey(source.Value))
+                return Enumerable.Empty<City>();
+
+            var (row, col) = MapMap[source.Value];
+
+            var nextCol = col + 1;
+            if (nextCol == Map[row].Length)
+                return Enumerable.Empty<City>();
+
+            return Map[row][nextCol..];
+        }
+
+        public City? BelowOrDefault(City? source) => Belows(source).FirstOrDefault();
+        public IEnumerable<City> Belows(City? source)
+        {
+            if (!source.HasValue || !MapMap.ContainsKey(source.Value))
+                return Enumerable.Empty<City>();
+
+            var (row, col) = MapMap[source.Value];
+
+            var nextRow = row + 1;
+            if (nextRow == Map.Length)
+                return Enumerable.Empty<City>();
+
+            return Map[nextRow..].Select(r=>r[col]);
+        }
+
+        public City? NextDiagOrDefault(City? source) => NextDiags(source).FirstOrDefault();
+        public IEnumerable<City> NextDiags(City? source)
+        {
+            if (!source.HasValue || !MapMap.ContainsKey(source.Value))
+                return Enumerable.Empty<City>();
+
+            var (row, col) = MapMap[source.Value];
+
+            var nextRow = row + 1;
+            if (nextRow == Map.Length)
+                return Enumerable.Empty<City>();
+            var nextCol = col + 1;
+            if (nextCol == Map[row].Length) //todo need better jagged array checking
+                return Enumerable.Empty<City>();
+
+            return Map[nextRow..].Select(r=> r[nextCol..]).SelectMany(c => c);
+        }
+
+        public City? PrevDiagOrDefault(City? source)
+        {
+            if (!source.HasValue || !MapMap.ContainsKey(source.Value))
+                return null;
+
+            var (row, col) = MapMap[source.Value];
+            return Map.ElementAtOrDefault(row - 1)
+                ?.ElementAtOrDefault(col - 1);
+        }
+
+        public IEnumerable<City> PrevDiags(City? source)
+        {
+            if (!source.HasValue || !MapMap.ContainsKey(source.Value))
+                return Enumerable.Empty<City>();
+
+            var (row, col) = MapMap[source.Value];
+
+            var prevRow = row - 1;
+            if (prevRow < 0)
+                return Enumerable.Empty<City>();
+            var prevCol = col - 1;
+            if (prevCol < 0) //todo need better jagged array checking
+                return Enumerable.Empty<City>();
+
+            return Map[prevRow..].Select(r=>r[prevCol..]).SelectMany(c => c);
+        }
+
         public bool IsMet(DestinationCard destination, Player target)
         {
-            var playerMap = MapFactory(Map.Edges.Where(e => e.Tag.Owner == target));
+            var playerMap = MapFactory(Routes.Edges.Where(e => e.Tag.Owner == target));
 
             var search = new UndirectedBreadthFirstSearchAlgorithm<City, Route>(playerMap);
 
@@ -39,25 +117,44 @@ namespace TrainGame
                 }
             });
 
-            if(playerMap.Vertices.Contains(destination.Start))
+            if (playerMap.Vertices.Contains(destination.Start))
                 search.Compute(destination.Start);
 
             return foundEnd;
         }
 
+        public IEnumerable<Route> RoutesFrom(City source)
+        {
+            return Routes.Edges
+                .Where(r => r.IsAdjacent(source));
+        }
+
+        public IEnumerable<Route> RoutesFrom(City? source, City? target) => RoutesFrom(source, target.HasValue ? new[] { target.Value } : Enumerable.Empty<City>());
+
+        public IEnumerable<Route> RoutesFrom(City? source, IEnumerable<City> targets)
+        {
+            var targetList = targets.ToArray();
+
+            if (!source.HasValue || !targetList.Any())
+                return Enumerable.Empty<Route>();
+
+            return Routes.Edges
+                .Where(r => r.IsAdjacent(source.Value) && targetList.Any(t => r.IsAdjacent(t)));
+        }
+
         public IEnumerable<Route> OwnedRoutes(Player target)
-        => MapFactory(Map.Edges.Where(e => e.Tag.Owner == target)).Edges;
+        => MapFactory(Routes.Edges.Where(e => e.Tag.Owner == target)).Edges;
 
         public IEnumerable<Route> AvailableRoutes(Color key = Color.Any, int ticketCount = int.MaxValue)
         {
-            return Map.Edges.Where(e => (e.Tag.Color == key || e.Tag.Color == Color.Any || key == Color.Any)
+            return Routes.Edges.Where(e => (e.Tag.Color == key || e.Tag.Color == Color.Any || key == Color.Any)
             && e.Tag.Length <= ticketCount
             && e.Tag.Owner == null);
         }
 
         public IEnumerable<Route> ShortestRoute(DestinationCard path, Player target)
         {
-            var map = MapFactory(Map.Edges.Where(e => e.Tag.Owner == null || e.Tag.Owner == target));
+            var map = MapFactory(Routes.Edges.Where(e => e.Tag.Owner == null || e.Tag.Owner == target));
 
             IEnumerable<Route> shortestRoute = new Route[0];
 
@@ -78,12 +175,12 @@ namespace TrainGame
         /// <returns></returns>
         public DestinationCard LongestDestination(Player target)
         {
-            var playerMap = MapFactory(Map.Edges.Where(e => e.Tag.Owner == target));
+            var playerMap = MapFactory(Routes.Edges.Where(e => e.Tag.Owner == target));
 
-            var longestPath = playerMap.LongestPathBruteDepthFirst(r=>r.Tag.Length);
+            var longestPath = playerMap.LongestPathBruteDepthFirst(r => r.Tag.Length);
 
-            if(longestPath.Any())
-                return new DestinationCard(longestPath.First().Source, longestPath.Last().Target, 0, longestPath.Sum(r=>r.Tag.Length));
+            if (longestPath.Any())
+                return new DestinationCard(longestPath.First().Source, longestPath.Last().Target, 0, longestPath.Sum(r => r.Tag.Length));
 
             return DestinationCard.DestinationCardNull;
         }
@@ -97,7 +194,7 @@ namespace TrainGame
 
             if (!AllowParallelRoutes)
             {
-                var paralellEdges = Map.Edges.Where(
+                var paralellEdges = Routes.Edges.Where(
                     e =>
                     e.Source == route.Source
                     && e.Target == route.Target
@@ -135,7 +232,7 @@ namespace TrainGame
                 => throw new NotSupportedException();
         }
 
-        
+
     }
 
     public class Route : TaggedUndirectedEdge<City, EdgeProperties>
@@ -148,6 +245,20 @@ namespace TrainGame
         public Route(City source, City target, Color color, int length)
             : this(source, target, new EdgeProperties(color, length))
         {
+        }
+
+        public override bool Equals(object obj)
+        {
+            var route = obj as Route;
+            if (route == null)
+                return base.Equals(obj);
+
+            return route.Tag == Tag && route.IsAdjacent(Source) && route.IsAdjacent(Target);
+        }
+
+        public override int GetHashCode()
+        {
+            return Source.GetHashCode() ^ Target.GetHashCode() ^ Tag.GetHashCode(); //Note xor is communitive
         }
     }
 

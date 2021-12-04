@@ -14,7 +14,7 @@ namespace TrainGameRunner
 
         public void RenderDisplay(Game current, HumanPlayer player)
         {
-            Render(current.Board.Map);
+            Render(current.Board);
 
             foreach (var turn in current.Log.TakeLast(current.Players.Count() - 1))
             {
@@ -68,24 +68,69 @@ namespace TrainGameRunner
         public IEnumerable<TrainCard> Pick(IEnumerable<TrainCard> choices, int countMinimum, int countMaximum)
             => Pick(choices, countMinimum, countMaximum, Render);
 
-        protected void Render(UndirectedGraph<City, Route> board)
+        protected string RouteLabel(Route r)
         {
-            var rows = CityFactory.CityLayout.GetLength(0);
-            var cols = CityFactory.CityLayout.GetLength(1);
-            var horizontalSpacing = Console.WindowWidth / cols;
+            if (r.Tag.Owner != null)
+                return r.Tag.Owner.Name;
+            return r.Tag.Length + r.Tag.Color.ToString();
+        }
 
-            for (int row = 0; row < rows; row++)
+        protected void Render(RouteMap board)
+        {
+            var rows = CityFactory.CityLayout.Length;
+            var cols = CityFactory.CityLayout.Max(r => r.Length);
+            var horizontalSpacing = Console.WindowWidth / (cols * 2);
+
+            Console.WriteLine(new string('*', Console.WindowWidth));
+
+            foreach (var row in board.Map)
             {
-                for (int col = 0; col < cols; col++)
+                var nextLine = "";
+                foreach (var currentCity in row)
                 {
-                    var padded = string.Format("{0,-" + horizontalSpacing + "}",
-                        CityFactory.CityLayout[row, col]);
-                    Console.Write(padded);
+                    Console.Write(string.Format("{0,-" + horizontalSpacing + "}", currentCity));
+                    var nextCity = board.NextOrDefault(currentCity);
+                    var nRoutes = board.RoutesFrom(currentCity, nextCity)
+                        .Select(r => "-" + RouteLabel(r) + "-")
+                        .Aggregate("", (a, b) => a + b);
+                    var nnRoutes = board.RoutesFrom(currentCity, board.Nexts(nextCity))
+                        .Select(r => "=" + RouteLabel(r) + "=")
+                        .Aggregate("", (a, b) => a + b);
+                    Console.Write(string.Format("{0,-" + horizontalSpacing + "}", nRoutes + nnRoutes));
+
+                    var belowCity = board.BelowOrDefault(currentCity);
+                    var bRoutes = board.RoutesFrom(currentCity, belowCity)
+                        .Select(r => "|" + RouteLabel(r) + "|")
+                        .Aggregate("", (a, b) => a + b);
+                    var bbRoutes = board.RoutesFrom(currentCity, board.Belows(belowCity))
+                        .Select(r => "||" + RouteLabel(r) + "||")
+                        .Aggregate("", (a, b) => a + b);
+                    nextLine += string.Format("{0,-" + horizontalSpacing + "}", bRoutes + bbRoutes);
+
+                    var nextDiag = board.NextDiagOrDefault(currentCity);
+                    var cdRoutes = board.RoutesFrom(currentCity, nextDiag)
+                        .Select(r => @"\" + RouteLabel(r) + @"\")
+                        .Aggregate("", (a, b) => a + b);
+
+                    var cdcdRoutes = board.RoutesFrom(currentCity, board.NextDiags(nextDiag))
+                        .Select(r => @"\\" + RouteLabel(r) + @"\\")
+                        .Aggregate("", (a, b) => a + b);
+
+
+                    var ndRoutes = board.RoutesFrom(nextCity, belowCity)
+                        .Select(r => "/" + RouteLabel(r) + "/")
+                        .Aggregate("", (a, b) => a + b);
+                    var ndndRoutes = board.RoutesFrom(nextCity, board.PrevDiags(belowCity))
+                        .Select(r => "//" + RouteLabel(r) + "//")
+                        .Aggregate("", (a, b) => a + b);
+
+                    nextLine += string.Format("{0,-" + horizontalSpacing + "}", cdRoutes + ndRoutes); // + cdcdRoutes + ndndRoutes  these are bad?
                 }
                 Console.WriteLine();
+                Console.WriteLine(nextLine);
             }
 
-
+            Console.WriteLine(new String('*', Console.WindowWidth));
         }
         protected void Render(PlayerAction subject)
         {
