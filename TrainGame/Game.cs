@@ -34,6 +34,7 @@ public class Game
         }
 
         Board = new RouteMap(RouteFactory.Routes,
+            CityFactory.CityLayout,
             Players.Length > RuleSet.PlayerAlternateRouteMinimum);
 
         TicketDeck = new DiscardableDeck<TrainCard>(Entropy, RuleSet, GenerateTickets());

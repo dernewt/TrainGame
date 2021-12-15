@@ -14,16 +14,17 @@ namespace TrainGame
     public class RouteMap
     {
         protected UndirectedGraph<City, Route> Routes;
-        public readonly City[][] Map = CityFactory.CityLayout;
+        public readonly City[][] Map;
         protected Dictionary<City, (int, int)> MapMap;
         protected readonly bool AllowParallelRoutes;
 
-        public RouteMap(IEnumerable<Route> connections, bool allowParalellRoutes = false)
+        public RouteMap(IEnumerable<Route> connections, City[][] map, bool allowParalellRoutes = false)
         {
             MapMap = CityFactory.CityLayout.SelectMany((cities, row) => cities.Select((city, col) => new { city, row, col }))
                 .ToDictionary(x => x.city, x => (x.row, x.col));
             Routes = MapFactory(connections);
             AllowParallelRoutes = allowParalellRoutes;
+            Map = map;
         }
 
         public City? NextOrDefault(City? source) => Nexts(source).FirstOrDefault();
@@ -53,7 +54,7 @@ namespace TrainGame
             if (nextRow == Map.Length)
                 return Enumerable.Empty<City>();
 
-            return Map[nextRow..].Select(r=>r[col]);
+            return Map[nextRow..].Select(r => r[col]);
         }
 
         public City? NextDiagOrDefault(City? source) => NextDiags(source).FirstOrDefault();
@@ -68,10 +69,10 @@ namespace TrainGame
             if (nextRow == Map.Length)
                 return Enumerable.Empty<City>();
             var nextCol = col + 1;
-            if (nextCol == Map[row].Length) //todo need better jagged array checking
+            if (nextCol == Map[row].Length)
                 return Enumerable.Empty<City>();
 
-            return Map[nextRow..].Select(r=> r[nextCol..]).SelectMany(c => c);
+            return Map[nextRow..].Select(r => r[nextCol..]).SelectMany(c => c);
         }
 
         public City? PrevDiagOrDefault(City? source)
@@ -80,7 +81,7 @@ namespace TrainGame
                 return null;
 
             var (row, col) = MapMap[source.Value];
-            return Map.ElementAtOrDefault(row - 1)
+            return Map.ElementAtOrDefault(row + 1)
                 ?.ElementAtOrDefault(col - 1);
         }
 
@@ -91,14 +92,11 @@ namespace TrainGame
 
             var (row, col) = MapMap[source.Value];
 
-            var prevRow = row - 1;
-            if (prevRow < 0)
-                return Enumerable.Empty<City>();
-            var prevCol = col - 1;
-            if (prevCol < 0) //todo need better jagged array checking
+            var nextRow = row + 1;
+            if (nextRow == Map.Length)
                 return Enumerable.Empty<City>();
 
-            return Map[prevRow..].Select(r=>r[prevCol..]).SelectMany(c => c);
+            return Map[nextRow..].Select(r => r[..col]).SelectMany(c => c);
         }
 
         public bool IsMet(DestinationCard destination, Player target)
